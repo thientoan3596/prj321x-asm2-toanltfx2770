@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +20,16 @@ public class UserResponse {
     private String address;
     private String description;
     private String email;
+    private String phone;
     private eUserRole role;
+    private Set<CVResponse> cvList;
+    private String avatar;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Timestamp createdAt;
+
+    public CVResponse getDefaultCV() {
+        if (cvList.size() != 0)
+            return cvList.stream().filter(cvResponse -> cvResponse.getIsDefault() == true).findFirst().orElse(cvList.iterator().next());
+        return null;
+    }
 }

@@ -9,15 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private FileService fileService;
     @Autowired
     private UserDao userDao;
 
@@ -25,7 +29,15 @@ public class UserServiceImpl implements UserService{
     public UserResponse update(UserRequest payload) {
         return null;
     }
-
+    @Override
+    public UserResponse uploadAvatar(Long userId, MultipartFile file) {
+        User user = userDao.findById(userId).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + userId));
+        String oldAvatar = user.getAvatar();
+        String newAvatar = fileService.uploadFile(file);
+        user.setAvatar(newAvatar);
+        fileService.deleteFile(oldAvatar);
+        return user.toResponse();
+    }
     @Override
     public UserResponse insert(UserRegisterRequest payload) {
         User user = payload.toEntity();
@@ -36,16 +48,16 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Optional<UserResponse> findUser(long id) {
-        return Optional.empty();
+        return userDao.findById(id).map(User::toResponse);
     }
 
     @Override
     public Optional<User> findUserEntity(long id) {
-        return Optional.empty();
+        return userDao.findById(id);
     }
 
     @Override
     public List<UserResponse> findUsers() {
-        return null;
+        throw new IllegalStateException("Method not implemented");
     }
 }

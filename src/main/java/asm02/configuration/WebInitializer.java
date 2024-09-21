@@ -3,12 +3,12 @@ package asm02.configuration;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
+import javax.servlet.*;
 
 @SuppressWarnings("unused")
 public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer{
+    private static final String TMP_FOLDER = "/tmp";
+    private static final int MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[0];
@@ -36,4 +36,10 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
         characterEncodingFilter.setInitParameter("forceEncoding", "true");
         characterEncodingFilter.addMappingForUrlPatterns(null, false, "/*");
     }
+  /*  @Override
+    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+        MultipartConfigElement multipartConfigElement = new MultipartConfigElement(TMP_FOLDER,
+                MAX_UPLOAD_SIZE, MAX_UPLOAD_SIZE * 2L, MAX_UPLOAD_SIZE / 2);
+        registration.setMultipartConfig(multipartConfigElement);
+    }*/
 }

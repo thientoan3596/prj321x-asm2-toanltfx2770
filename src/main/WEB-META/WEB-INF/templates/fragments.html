@@ -4,7 +4,6 @@
       lang="vn">
 <head>
     <title></title></head>
-
 <body>
 <!--/* Region Resources*/-->
 <th:block th:fragment="common-resources-top">
@@ -45,25 +44,25 @@
             <h1 class="display-6 text-muted">Logo</h1>
         </a>
         <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
-            <li><a href="#" class="nav-link px-2 link-secondary">Việc làm</a></li>
-            <li><a href="#" class="nav-link px-2 link-dark">Công ty</a></li>
-            <li><a href="#" class="nav-link px-2 link-dark">Đăng việc làm</a></li>
+            <li><a href="#" class="nav-link px-2 link-secondary" th:text="#{label.jobs}">Jobs</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark" th:text="#{label.company}">Company</a></li>
+            <li><a href="#" class="nav-link px-2 link-dark" th:text="#{label.post-a-job}">Post a job</a></li>
         </ul>
         <div th:if="${#authentication.principal != 'anonymousUser'}" class="col-md-3 text-end">
             <div class="dropdown">
                 <button class="btn dropdown-toggle"
                         type="button" id="userDropdownMenu"
-                        data-bs-toggle="dropdown" th:text="${'Xin chào '+ #authentication.principal.fullName} ">
+                        data-bs-toggle="dropdown" th:text="#{message.hello}+' '+ ${#authentication.principal.fullName} ">
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="/user/profile">Profile</a>
-                    <a class="dropdown-item" href="/logout">Đăng xuất</a>
+                    <a class="dropdown-item" href="/user/profile" th:text="#{label.profile}">Profile</a>
+                    <a class="dropdown-item" href="/logout" th:text="#{label.logout}">Logout</a>
                 </div>
             </div>
         </div>
         <div th:unless="${#authentication.principal != 'anonymousUser'}" class="col-md-3 text-end">
-            <a href="/login" class="btn btn-outline-primary me-2" role="button">Đăng nhập</a>
-            <a href="/register" class="btn btn-primary" role="button">Đăng ký</a>
+            <a href="/login" class="btn btn-outline-primary me-2" role="button" th:text="#{label.login}">Login</a>
+            <a href="/register" class="btn btn-primary" role="button" th:text="#{label.register}">Register</a>
         </div>
     </header>
 </th:block>

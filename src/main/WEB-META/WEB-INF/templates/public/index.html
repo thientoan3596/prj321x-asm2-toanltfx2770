@@ -33,20 +33,20 @@
             <div class="mask p-5" style="background-color: rgba(0, 0, 0, 0.6);">
                 <div class="d-flex justify-content-center align-items-center h-100">
                     <div class="text-white">
-                        <p>Tìm việc làm, Cơ hội việc làm và Nghề nghiệp</p>
-                        <h1 class="mb-5">Cách dễ dàng nhất để có được công việc mới của bạn</h1>
+                        <p th:text="#{message.homepage.hook}">Tìm việc làm, Cơ hội việc làm và Nghề nghiệp</p>
+                        <h1 class="mb-5" th:text="#{message.homepage.hook-heading}">Cách dễ dàng nhất để có được công việc mới của bạn</h1>
                         <div class="row justify-content-center">
                             <div class="col-8">
                                 <div class="row">
-                                    <div class="col-4">
+                                    <div class="col-4" th:text="#{label.candidate}">
                                         Ứng cử viên
                                         <h4>+1</h4>
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-4" th:text="#{label.company}">
                                         Công ty
                                         <h4>+1</h4>
                                     </div>
-                                    <div class="col-4">
+                                    <div class="col-4" th:text="#{label.jobs-posted}">
                                         Tuyển dụng
                                         <h4>+1</h4>
                                     </div>
@@ -55,17 +55,17 @@
                             <div class="col-8">
                                 <ul class="nav nav-tabs  border-0" role="tablist">
                                     <li class="nav-item mx-2">
-                                        <a class="nav-link active" data-bs-target="#searchJob" role="button" data-bs-toggle="tab" >
+                                        <a class="nav-link active" data-bs-target="#searchJob" role="button" data-bs-toggle="tab" th:text="#{label.find-a-job}">
                                             Tìm công việc
                                         </a>
                                     </li>
                                     <li class="nav-item mx-2">
-                                        <a class="nav-link" data-bs-target="#searchByCompany" role="button" data-bs-toggle="tab">
+                                        <a class="nav-link" data-bs-target="#searchByCompany" role="button" data-bs-toggle="tab" th:text="#{label.find-by-company}">
                                             Tìm theo công ty
                                         </a>
                                     </li>
                                     <li class="nav-item mx-2">
-                                        <a class="nav-link" data-bs-target="#searchByLocation" role="button" data-bs-toggle="tab" aria-current="page">
+                                        <a class="nav-link" data-bs-target="#searchByLocation" role="button" data-bs-toggle="tab" aria-current="page" th:text="#{label.find-by-location}">
                                             Tìm theo địa điểm
                                         </a>
                                     </li>
@@ -75,10 +75,10 @@
                                         <div class="mt-3">
                                             <form class="row g-2 mb-3">
                                                 <div class="col-9">
-                                                    <input class="form-control" type="search" placeholder="Tìm công việc">
+                                                    <input class="form-control" type="search" th:placeholder="#{label.find-a-job}">
                                                 </div>
                                                 <div class="col-3">
-                                                    <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+                                                    <button class="btn btn-outline-success" type="submit" th:text="#{label.search}">Tìm kiếm</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -87,10 +87,10 @@
                                         <div class="mt-3">
                                             <form class="row g-2 mb-3">
                                                 <div class="col-9">
-                                                    <input class="form-control" type="search" placeholder="Tìm theo công ty">
+                                                    <input class="form-control" type="search" th:placeholder="#{label.find-by-company}">
                                                 </div>
                                                 <div class="col-3">
-                                                    <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+                                                    <button class="btn btn-outline-success" type="submit" th:text="#{label.search}">Tìm kiếm</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -99,10 +99,10 @@
                                         <div class="mt-3">
                                             <form class="row g-2 mb-3">
                                                 <div class="col-9">
-                                                    <input class="form-control" type="search" placeholder="Tìm theo địa điểm">
+                                                    <input class="form-control" type="search" th:placeholder="#{label.find-by-location}">
                                                 </div>
                                                 <div class="col-3">
-                                                    <button class="btn btn-outline-success" type="submit">Tìm kiếm</button>
+                                                    <button class="btn btn-outline-success" type="submit" th:text="#{label.search}">Tìm kiếm</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -118,6 +118,9 @@
     <h1>XIN CHAO</h1>
 
 
+    <h1>
+        Công ty nổi bật
+    </h1>
     <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque eum nam quisquam quod? Amet atque
         consequuntur
         deleniti facilis magni maiores nam optio quaerat quas quasi quis ratione suscipit, voluptate voluptates!</p>

@@ -22,20 +22,20 @@ import java.sql.Timestamp;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRegisterRequest {
 
-    @NotBlank(message = "Tên không được bỏ trống")
-    @Size(min = 5, max = 255, message = "Vui lòng nhập tên thật")
+    @NotBlank(message = "{label.fullname} {validation.not-null}")
+    @Size(min = 5, max = 255, message = "{validation.size.fullname}")
     private String fullName;
     private String address="";
     private String description="";
-    @NotBlank(message = "Email không được bỏ trống")
-    @Email(message = "Email không hợp lệ")
+    @NotBlank(message = "{label.email} {validation.not-null}")
+    @Email(message = "{label.email} {validation.invalid}")
     private String email ;
     private eUserRole role=eUserRole.JOB_SEEKER;
-    @NotBlank(message = "Mật khẩu không được bỏ trống")
-    @Pattern(regexp = ".{3,255}", message = "Mật khẩu phải từ 3-255 ký tự")
+    @NotBlank(message = "{label.password} {validation.not-blank}")
+    @Pattern(regexp = ".{3,255}", message = "{label.password} {validation.size}")
     private String password;
-    @NotBlank(message = "Mật khẩu không được bỏ trống")
-    @Pattern(regexp = ".{3,255}", message = "Mật khẩu phải từ 3-255 ký tự")
+    @NotBlank(message = "{label.password} {validation.not-blank}")
+    @Pattern(regexp = ".{3,255}", message = "{label.password} {validation.size}")
     private String passwordConfirm;
 
     /**

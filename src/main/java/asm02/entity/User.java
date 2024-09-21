@@ -11,6 +11,8 @@ import org.hibernate.LazyInitializationException;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,16 +29,24 @@ public class User {
     private String fullName;
     private String address;
     private String description;
-    @Column(name = "email",nullable = false,unique = true)
-    private String email ;
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+    private String phone;
+    private String avatar;
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private eUserRole role;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private Set<CV> cvList;
     @Column(name = "created_at")
     private Timestamp createdAt;
-    @Column(name = "password",nullable = false)
+    @Column(name = "deleted_at")
+    @JsonIgnore
+    private Timestamp deletedAt;
+    @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
+
     /**
      * @throws IllegalStateException if being called outside Transaction
      */
@@ -48,8 +58,11 @@ public class User {
                     .description(description)
                     .address(address)
                     .email(email)
+                    .phone(phone)
                     .role(role)
                     .createdAt(createdAt)
+                    .avatar(avatar)
+                    .cvList(cvList.stream().map(CV::toResponse).collect(Collectors.toSet()))
                     .build();
         } catch (Exception e) {
             if (e instanceof LazyInitializationException)
