@@ -1,7 +1,7 @@
 package asm02.entity;
 
-import asm02.dto.UserRequest;
-import asm02.dto.UserResponse;
+import asm02.dto.request.update.UserRequest;
+import asm02.dto.response.UserResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
@@ -63,7 +63,7 @@ public class User {
                     .role(role)
                     .createdAt(createdAt)
                     .avatar(avatar)
-                    .cvList(cvList.stream().map(CV::toResponse).collect(Collectors.toSet()))
+                    .cvList(cvList ==null?null: cvList.stream().map(CV::toResponse).collect(Collectors.toSet()))
                     .build();
         } catch (Exception e) {
             if (e instanceof LazyInitializationException)

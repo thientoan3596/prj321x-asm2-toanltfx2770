@@ -1,5 +1,6 @@
-package asm02.dto;
+package asm02.dto.response;
 
+import asm02.dto.CVResponse;
 import asm02.entity.eUserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

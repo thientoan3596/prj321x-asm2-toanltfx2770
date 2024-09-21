@@ -1,6 +1,6 @@
 package asm02.controller.view;
 
-import asm02.dto.UserRegisterRequest;
+import asm02.dto.request.insert.UserRegisterRequest;
 import asm02.entity.eUserRole;
 import asm02.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class HomeViewController {
         }
 
          userService.insert(user);
-        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.register.success", null, locale));
+        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.register", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
         return "redirect:/login";

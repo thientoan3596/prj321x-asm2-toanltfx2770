@@ -1,4 +1,4 @@
-package asm02.dto;
+package asm02.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

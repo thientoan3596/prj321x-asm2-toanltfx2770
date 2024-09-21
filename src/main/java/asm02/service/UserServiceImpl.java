@@ -1,9 +1,9 @@
 package asm02.service;
 
 import asm02.dao.UserDao;
-import asm02.dto.UserRegisterRequest;
-import asm02.dto.UserRequest;
-import asm02.dto.UserResponse;
+import asm02.dto.request.insert.UserRegisterRequest;
+import asm02.dto.request.update.UserRequest;
+import asm02.dto.response.UserResponse;
 import asm02.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

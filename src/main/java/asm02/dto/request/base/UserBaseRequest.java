@@ -1,32 +1,36 @@
-package asm02.dto;
+package asm02.dto.request.base;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import asm02.entity.User;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class UserRequest {
-    @NotNull
-    private Long id;
+@FieldDefaults(level = AccessLevel.PROTECTED)
+public abstract class UserBaseRequest {
     @NotBlank(message = "{label.fullname} {validation.not-blank}")
     @Size(min = 5, max = 255, message = "{validation.size.name}")
-    private String fullName;
-    private String address;
-    private String description;
+    String fullName;
+    String address = "";
+    String description = "";
     @NotBlank(message = "{label.email} {validation.not-blank}")
     @Email(message = "{label.email} {validation.invalid}")
-    private String email;
+    String email;
     // TODO: 9/20/2024 Update with số điện thoại cố định
     // https://fozg.net/blog/validate-vietnamese-phone-number
     @Pattern(regexp = "(((\\+|00|0)84)|0)([35789])+([0-9]{8})\\b|^$",
             message = "{validation.invalid.phone}")
-    private String phone;
+    String phone;
+
+    public abstract User toEntity();
 }

@@ -1,8 +1,11 @@
 package asm02.entity;
 
+import asm02.dto.CompanyRequest;
+import asm02.dto.response.CompanyResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
+import org.hibernate.LazyInitializationException;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -14,8 +17,8 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "company")
 @JsonIgnoreProperties(value = {"createdAt"}, allowGetters = true)
-@EqualsAndHashCode(exclude = { "recruiter"})
-@ToString(exclude = { "recruiter"})
+@EqualsAndHashCode(exclude = {"recruiter"})
+@ToString(exclude = {"recruiter"})
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +37,38 @@ public class Company {
     @JoinColumn(name = "recruiter_id")
     @OneToOne
     private User recruiter;
+
+    /**
+     * @throws IllegalStateException if being called outside Transaction
+     */
+    public CompanyResponse toResponse() {
+        try {
+            return CompanyResponse.builder()
+                    .id(this.id)
+                    .name(this.name)
+                    .address(this.address)
+                    .description(this.description)
+                    .email(this.email)
+                    .phone(this.phone)
+                    .logo(this.logo)
+                    .recruiter_id(recruiter.getId())
+                    .build();
+        } catch (Exception e) {
+            if (e instanceof LazyInitializationException)
+                throw new IllegalStateException("Lazily loading outside Tx!");
+            throw e;
+        }
+    }
+
+    /**
+     * @throws IllegalStateException The entity and request having different id
+     */
+    public void merge(CompanyRequest request) {
+        if (request.getId() != id) throw new IllegalStateException("Merging different entities");
+        if (request.getName() != null) name = request.getName();
+        if (request.getPhone() != null) phone = request.getPhone();
+        if (request.getAddress() != null) address = request.getAddress();
+        if (request.getEmail() != null) email = request.getEmail();
+        if (request.getDescription() != null) description = request.getDescription();
+    }
 }

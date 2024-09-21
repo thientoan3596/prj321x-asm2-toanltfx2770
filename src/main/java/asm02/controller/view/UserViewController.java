@@ -1,6 +1,6 @@
 package asm02.controller.view;
 
-import asm02.dto.UserRequest;
+import asm02.dto.request.update.UserRequest;
 import asm02.security.AuthUser;
 import asm02.service.CVService;
 import asm02.service.FileService;
