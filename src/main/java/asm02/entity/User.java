@@ -1,5 +1,6 @@
 package asm02.entity;
 
+import asm02.dto.UserRequest;
 import asm02.dto.UserResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -69,6 +70,15 @@ public class User {
                 throw new IllegalStateException("Lazily loading outside Tx!");
             throw e;
         }
+    }
+    public void merge(UserRequest request){
+        if(request.getId()!= id) throw new IllegalStateException("Merging different entities");
+        if(request.getAddress()!= null) address=request.getAddress();
+        if(request.getPhone()!= null) phone=request.getPhone();
+        if(request.getEmail()!= null)  email=request.getEmail();
+        if(request.getFullName()!=null) fullName=request.getFullName();
+        if(request.getDescription()!= null) description=request.getDescription();
+
     }
 
 }

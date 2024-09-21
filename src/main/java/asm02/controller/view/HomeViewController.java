@@ -75,9 +75,7 @@ public class HomeViewController {
             );
         }
         if (bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
             model.addAttribute("roles", eUserRole.getLocalizedValues(messageSource, locale));
-
             return "public/register";
         }
 

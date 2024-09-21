@@ -57,7 +57,7 @@
                 </div>
             </div>
             <div class="col-xl-5 col-md-9 col-sm-12">
-                <form action="login" method="post" th:object="${user}">
+                <form th:action="@{/user/profile}" method="post" th:object="${user}">
                     <div class="row mb-3">
                         <div class="col-7">
                             <h1 class="h3 fw-normal" th:text="#{label.profile-detail}">Profile</h1>
@@ -69,7 +69,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="id" th:value="*{id}">
-                    <!--/* Email /*-->
+                    <!--/* Email */-->
                     <div class="form-floating mb-3">
                         <input type="email" class="form-control"
                                th:classappend="${#fields.hasErrors('email')}? 'is-invalid' : ''"
@@ -80,6 +80,7 @@
                              th:if="${#fields.hasErrors('email')}"
                              th:errors="*{email}"></div>
                     </div>
+
                     <!--/* Full name */-->
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control"

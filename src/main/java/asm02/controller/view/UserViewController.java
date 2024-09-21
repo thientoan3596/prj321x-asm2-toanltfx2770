@@ -1,22 +1,23 @@
 package asm02.controller.view;
 
+import asm02.dto.UserRequest;
 import asm02.security.AuthUser;
 import asm02.service.CVService;
 import asm02.service.FileService;
 import asm02.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Locale;
 
@@ -39,6 +40,30 @@ public class UserViewController {
         model.addAttribute("user", userService.findUser(userID).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + userID)));
         return "user/profile";
     }
+    @PostMapping("/profile")
+    public String updateProfile(
+        @Valid @ModelAttribute("user") UserRequest payload,
+        BindingResult bindingResult,
+        Locale locale,
+        Model model,
+        RedirectAttributes redirectAttributes,
+        Principal principal
+    ){
+        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
+        if(!((AuthUser)token.getPrincipal()).getId().equals(payload.getId())){
+            System.out.println("Principal " + ((AuthUser)token.getPrincipal()).getId() + " payload " + payload.getId());
+            System.out.println("Ouch");
+            throw new AccessDeniedException("Deny to update other users profile");
+        }
+        if(bindingResult.hasErrors())
+            return "redirect:/user/profile";
+        userService.update(payload);
+        redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.update", null, locale));
+        redirectAttributes.addFlashAttribute("type", "success");
+        redirectAttributes.addFlashAttribute("translated", true);
+        System.out.println("ALL GOOD");
+        return "redirect:/user/profile";
+    }
 
     @PostMapping("/cv")
     public String uploadCv(
@@ -48,8 +73,6 @@ public class UserViewController {
             RedirectAttributes redirectAttributes,
             Locale locale
     ) {
-//        @RequestParam(value = "isDefault",defaultValue = "true") Boolean isDefault;
-//        Boolean isDefault= true;
         if(file.isEmpty()){
             redirectAttributes.addFlashAttribute(
                     "message",

@@ -27,7 +27,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse update(UserRequest payload) {
-        return null;
+        User user = userDao.findById(payload.getId()).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + payload.getId()));
+        user.merge(payload);
+        userDao.update(user);
+        return user.toResponse();
     }
     @Override
     public UserResponse uploadAvatar(Long userId, MultipartFile file) {
