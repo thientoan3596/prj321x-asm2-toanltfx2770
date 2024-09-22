@@ -37,7 +37,7 @@ public class DatabaseConf {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() throws PropertyVetoException {
+    public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("asm02/entity","asm02/security");

@@ -1,7 +1,6 @@
 package asm02.dto.request.base;
 
 
-import asm02.entity.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -31,6 +30,4 @@ public abstract class UserBaseRequest {
     @Pattern(regexp = "(((\\+|00|0)84)|0)([35789])+([0-9]{8})\\b|^$",
             message = "{validation.invalid.phone}")
     String phone;
-
-    public abstract User toEntity();
 }

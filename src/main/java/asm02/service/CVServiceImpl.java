@@ -1,8 +1,8 @@
 package asm02.service;
 
 import asm02.dao.CVDao;
-import asm02.dto.CVRequest;
-import asm02.dto.CVResponse;
+import asm02.dto.request.update.CVRequest;
+import asm02.dto.response.CVResponse;
 import asm02.entity.CV;
 import asm02.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;

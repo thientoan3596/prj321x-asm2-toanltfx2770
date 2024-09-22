@@ -1,6 +1,6 @@
 package asm02.entity;
 
-import asm02.dto.CompanyRequest;
+import asm02.dto.request.update.CompanyRequest;
 import asm02.dto.response.CompanyResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -64,7 +64,7 @@ public class Company {
      * @throws IllegalStateException The entity and request having different id
      */
     public void merge(CompanyRequest request) {
-        if (request.getId() != id) throw new IllegalStateException("Merging different entities");
+        if (!request.getId().equals(id)) throw new IllegalStateException("Merging different entities");
         if (request.getName() != null) name = request.getName();
         if (request.getPhone() != null) phone = request.getPhone();
         if (request.getAddress() != null) address = request.getAddress();

@@ -2,9 +2,10 @@ package asm02.service;
 
 import asm02.dao.CompanyDao;
 import asm02.dto.request.insert.CompanyInsertRequest;
-import asm02.dto.CompanyRequest;
+import asm02.dto.request.update.CompanyRequest;
 import asm02.dto.response.CompanyResponse;
 import asm02.entity.Company;
+import asm02.mapper.CompanyMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,8 @@ public class CompanyServiceImpl implements CompanyService{
     private FileService fileService;
     @Autowired
     private CompanyDao companyDao;
+    @Autowired
+    private CompanyMapper companyMapper;
     @Override
     public CompanyResponse update(CompanyRequest payload) {
         Company comp = companyDao.findById(payload.getId()).orElseThrow(()-> new EntityNotFoundException("No such company with id: " + payload.getId()));
@@ -30,7 +33,7 @@ public class CompanyServiceImpl implements CompanyService{
 
     @Override
     public CompanyResponse insert(CompanyInsertRequest payload) {
-        Company comp = payload.toEntity();
+        Company comp = companyMapper.toEntity(payload);
         companyDao.insert(comp);
         return comp.toResponse();
     }
@@ -41,7 +44,8 @@ public class CompanyServiceImpl implements CompanyService{
         String oldLogo = comp.getLogo();
         String newLogo = fileService.uploadFile(file);
         comp.setLogo(newLogo);
-        fileService.deleteFile(oldLogo);
+        if(oldLogo != null)
+            fileService.deleteFile(oldLogo);
         companyDao.update(comp);
         return comp.toResponse();
     }

@@ -1,6 +1,5 @@
 package asm02.dto.response;
 
-import asm02.dto.CVResponse;
 import asm02.entity.eUserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -30,7 +29,7 @@ public class UserResponse {
 
     public CVResponse getDefaultCV() {
         if (cvList.size() != 0)
-            return cvList.stream().filter(cvResponse -> cvResponse.getIsDefault() == true).findFirst().orElse(cvList.iterator().next());
+            return cvList.stream().filter(cvResponse -> cvResponse.getIsDefault()).findFirst().orElse(cvList.iterator().next());
         return null;
     }
 }

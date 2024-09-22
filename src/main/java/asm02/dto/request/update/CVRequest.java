@@ -1,4 +1,4 @@
-package asm02.dto;
+package asm02.dto.request.update;
 
 import asm02.entity.CV;
 import lombok.AllArgsConstructor;
@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+// TODO: 9/22/2024 Consider to remove this! If no use
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

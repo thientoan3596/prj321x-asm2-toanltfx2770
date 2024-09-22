@@ -1,7 +1,7 @@
 package asm02.service;
 
 import asm02.dto.request.insert.CompanyInsertRequest;
-import asm02.dto.CompanyRequest;
+import asm02.dto.request.update.CompanyRequest;
 import asm02.dto.response.CompanyResponse;
 import org.springframework.web.multipart.MultipartFile;
 

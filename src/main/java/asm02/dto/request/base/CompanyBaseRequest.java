@@ -1,6 +1,5 @@
 package asm02.dto.request.base;
 
-import asm02.entity.Company;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -29,5 +28,4 @@ public abstract class CompanyBaseRequest {
     protected String email;
     @Size(max = 255,message = "{label.description} {validation.size.max-only")
     protected String description;
-    abstract public Company toEntity();
 }

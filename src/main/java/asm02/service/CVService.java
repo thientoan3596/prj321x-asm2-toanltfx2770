@@ -1,7 +1,7 @@
 package asm02.service;
 
-import asm02.dto.CVRequest;
-import asm02.dto.CVResponse;
+import asm02.dto.request.update.CVRequest;
+import asm02.dto.response.CVResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

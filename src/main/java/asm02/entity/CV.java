@@ -1,7 +1,7 @@
 package asm02.entity;
 
 
-import asm02.dto.CVResponse;
+import asm02.dto.response.CVResponse;
 import lombok.*;
 import org.hibernate.LazyInitializationException;
 

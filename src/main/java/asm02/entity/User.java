@@ -1,19 +1,16 @@
 package asm02.entity;
 
 import asm02.dto.request.update.UserRequest;
-import asm02.dto.response.UserResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.LazyInitializationException;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -47,32 +44,8 @@ public class User {
     @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
-
-    /**
-     * @throws IllegalStateException if being called outside Transaction
-     */
-    public UserResponse toResponse() {
-        try {
-            return UserResponse.builder()
-                    .id(id)
-                    .fullName(fullName)
-                    .description(description)
-                    .address(address)
-                    .email(email)
-                    .phone(phone)
-                    .role(role)
-                    .createdAt(createdAt)
-                    .avatar(avatar)
-                    .cvList(cvList ==null?null: cvList.stream().map(CV::toResponse).collect(Collectors.toSet()))
-                    .build();
-        } catch (Exception e) {
-            if (e instanceof LazyInitializationException)
-                throw new IllegalStateException("Lazily loading outside Tx!");
-            throw e;
-        }
-    }
     public void merge(UserRequest request){
-        if(request.getId()!= id) throw new IllegalStateException("Merging different entities");
+        if(!request.getId().equals(id)) throw new IllegalStateException("Merging different entities");
         if(request.getAddress()!= null) address=request.getAddress();
         if(request.getPhone()!= null) phone=request.getPhone();
         if(request.getEmail()!= null)  email=request.getEmail();

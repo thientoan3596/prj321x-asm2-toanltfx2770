@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -67,6 +68,8 @@ public class FileServiceImpl implements FileService {
         try {
             Files.deleteIfExists(p);
         } catch (IOException e) {
+            if(e instanceof FileNotFoundException)
+                return;
             e.printStackTrace();
         }
     }
