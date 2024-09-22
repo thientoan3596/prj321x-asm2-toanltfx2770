@@ -41,6 +41,5 @@ public class UserRegisterRequest  extends UserBaseRequest {
                 .createdAt(new Timestamp(System.currentTimeMillis()))
                 .build();
     }
-
 }
 

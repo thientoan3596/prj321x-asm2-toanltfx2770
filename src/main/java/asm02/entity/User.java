@@ -78,7 +78,5 @@ public class User {
         if(request.getEmail()!= null)  email=request.getEmail();
         if(request.getFullName()!=null) fullName=request.getFullName();
         if(request.getDescription()!= null) description=request.getDescription();
-
     }
-
 }

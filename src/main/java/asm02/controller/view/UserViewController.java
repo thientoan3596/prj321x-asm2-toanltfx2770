@@ -51,8 +51,6 @@ public class UserViewController {
     ){
         UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
         if(!((AuthUser)token.getPrincipal()).getId().equals(payload.getId())){
-            System.out.println("Principal " + ((AuthUser)token.getPrincipal()).getId() + " payload " + payload.getId());
-            System.out.println("Ouch");
             throw new AccessDeniedException("Deny to update other users profile");
         }
         if(bindingResult.hasErrors())
@@ -61,7 +59,6 @@ public class UserViewController {
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.update", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
-        System.out.println("ALL GOOD");
         return "redirect:/user/profile";
     }
 
@@ -91,7 +88,10 @@ public class UserViewController {
             redirectAttributes.addFlashAttribute("translated",true);
             return "redirect:/user/profile";
         }
-         cvService.uploadCv(file,userId,isDefault);
+        // TODO: 9/22/2024 Rename if duplicated!
+        // Currently, if new file name is same with old one, does not thing
+        // which may cause confusing when selecting cv to apply for job later.
+        cvService.uploadCv(file,userId,isDefault);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.cv-uploaded", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);

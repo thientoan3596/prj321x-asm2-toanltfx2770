@@ -5,6 +5,7 @@ import asm02.dto.request.insert.UserRegisterRequest;
 import asm02.dto.request.update.UserRequest;
 import asm02.dto.response.UserResponse;
 import asm02.entity.User;
+import asm02.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,15 @@ public class UserServiceImpl implements UserService {
     private FileService fileService;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public UserResponse update(UserRequest payload) {
         User user = userDao.findById(payload.getId()).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + payload.getId()));
         user.merge(payload);
         userDao.update(user);
-        return user.toResponse();
+        return userMapper.toResponse(user);
     }
     @Override
     public UserResponse uploadAvatar(Long userId, MultipartFile file) {
@@ -38,20 +41,21 @@ public class UserServiceImpl implements UserService {
         String oldAvatar = user.getAvatar();
         String newAvatar = fileService.uploadFile(file);
         user.setAvatar(newAvatar);
-        fileService.deleteFile(oldAvatar);
-        return user.toResponse();
+        if(oldAvatar != null)
+             fileService.deleteFile(oldAvatar);
+        return userMapper.toResponse(user);
     }
     @Override
     public UserResponse insert(UserRegisterRequest payload) {
-        User user = payload.toEntity();
+        User user = userMapper.toEntity(payload);
         user.setPassword(passwordEncoder.encode(payload.getPassword()));
         userDao.insert(user);
-        return user.toResponse();
+        return userMapper.toResponse(user);
     }
 
     @Override
     public Optional<UserResponse> findUser(long id) {
-        return userDao.findById(id).map(User::toResponse);
+        return userDao.findById(id).map(userMapper::toResponse);
     }
 
     @Override
