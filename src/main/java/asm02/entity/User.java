@@ -44,6 +44,8 @@ public class User {
     @Column(name = "password", nullable = false)
     @JsonIgnore
     private String password;
+    @OneToOne(mappedBy = "recruiter" ,fetch = FetchType.LAZY)
+    private Company company;
     public void merge(UserRequest request){
         if(!request.getId().equals(id)) throw new IllegalStateException("Merging different entities");
         if(request.getAddress()!= null) address=request.getAddress();

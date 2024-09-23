@@ -8,7 +8,7 @@ import asm02.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.Locale;
 
 @Controller
@@ -34,26 +33,30 @@ public class UserViewController {
     private CVService cvService;
 
     @GetMapping("/profile")
-    public String profile(Model model, Principal principal, Locale locale) {
-        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
-        Long userID = ((AuthUser) token.getPrincipal()).getId();
-        model.addAttribute("user", userService.findUser(userID).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + userID)));
+    public String profile(
+            Model model,
+            Locale locale,
+            @AuthenticationPrincipal AuthUser authUser
+
+    ) {
+        if(authUser==null)
+            throw new AccessDeniedException("Please login!");
+        model.addAttribute("user", userService.findUser(authUser.getId()).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + authUser.getId())));
         return "user/profile";
     }
+
     @PostMapping("/profile")
     public String updateProfile(
-        @Valid @ModelAttribute("user") UserRequest payload,
-        BindingResult bindingResult,
-        Locale locale,
-        Model model,
-        RedirectAttributes redirectAttributes,
-        Principal principal
-    ){
-        UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) principal;
-        if(!((AuthUser)token.getPrincipal()).getId().equals(payload.getId())){
+            @Valid @ModelAttribute("user") UserRequest payload,
+            BindingResult bindingResult,
+            Locale locale,
+            Model model,
+            RedirectAttributes redirectAttributes,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        if (isNotAllow(authUser, payload.getId()))
             throw new AccessDeniedException("Deny to update other users profile");
-        }
-        if(bindingResult.hasErrors())
+        if (bindingResult.hasErrors())
             return "redirect:/user/profile";
         userService.update(payload);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.update", null, locale));
@@ -66,32 +69,35 @@ public class UserViewController {
     public String uploadCv(
             @RequestParam("userId") Long userId,
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "isDefault",defaultValue = "true") Boolean isDefault,
+            @RequestParam(value = "isDefault", defaultValue = "true") Boolean isDefault,
             RedirectAttributes redirectAttributes,
-            Locale locale
+            Locale locale,
+            @AuthenticationPrincipal AuthUser authUser
     ) {
-        if(file.isEmpty()){
+        if (isNotAllow(authUser, userId))
+            throw new AccessDeniedException("Deny to update other users cv");
+        if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute(
                     "message",
-                    messageSource.getMessage("message.error.empty-file",null,locale)
+                    messageSource.getMessage("message.error.empty-file", null, locale)
             );
-            redirectAttributes.addFlashAttribute("type","error");
-            redirectAttributes.addFlashAttribute("translated",true);
+            redirectAttributes.addFlashAttribute("type", "error");
+            redirectAttributes.addFlashAttribute("translated", true);
             return "redirect:/user/profile";
         }
-        if(!fileService.isCv(file)){
+        if (!fileService.isCv(file)) {
             redirectAttributes.addFlashAttribute(
                     "message",
-                    messageSource.getMessage("message.error.not-cv-file",null,locale)
+                    messageSource.getMessage("message.error.not-cv-file", null, locale)
             );
-            redirectAttributes.addFlashAttribute("type","error");
-            redirectAttributes.addFlashAttribute("translated",true);
+            redirectAttributes.addFlashAttribute("type", "error");
+            redirectAttributes.addFlashAttribute("translated", true);
             return "redirect:/user/profile";
         }
         // TODO: 9/22/2024 Rename if duplicated!
         // Currently, if new file name is same with old one, does not thing
         // which may cause confusing when selecting cv to apply for job later.
-        cvService.uploadCv(file,userId,isDefault);
+        cvService.uploadCv(file, userId, isDefault);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.cv-uploaded", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
@@ -103,26 +109,36 @@ public class UserViewController {
             @RequestParam("userId") Long userId,
             @RequestParam("file") MultipartFile file,
             RedirectAttributes redirectAttributes,
-            Locale locale
+            Locale locale,
+            @AuthenticationPrincipal AuthUser authUser
     ) {
+        if (isNotAllow(authUser, userId))
+            throw new AccessDeniedException("Deny to update other users avatar");
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.error.empty-file", null, locale));
             redirectAttributes.addFlashAttribute("type", "error");
             redirectAttributes.addFlashAttribute("translated", true);
             return "redirect:/user/profile";
         }
-
         if (!fileService.isImage(file)) {
             redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.error.not-image-file", null, locale));
             redirectAttributes.addFlashAttribute("type", "error");
             redirectAttributes.addFlashAttribute("translated", true);
             return "redirect:/user/profile";
         }
-
         userService.uploadAvatar(userId, file);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.avatar-uploaded", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
         return "redirect:/user/profile";
+    }
+
+    /**
+     * Checking if principal is allowed to update targetUserId (by means same user)
+     */
+    private boolean isNotAllow(AuthUser authUser, Long targetUserId) {
+        if (authUser == null)
+            return true;
+        return !authUser.getId().equals(targetUserId);
     }
 }

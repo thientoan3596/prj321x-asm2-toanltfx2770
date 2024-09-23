@@ -4,8 +4,10 @@ import asm02.dao.UserDao;
 import asm02.dto.response.UserResponse;
 import asm02.entity.User;
 import asm02.mapper.UserMapper;
+import asm02.security.AuthUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,5 +49,12 @@ public class DevController {
     @GetMapping("/read")
     public String read(HttpSession s) {
         return "Depreciated";
+    }
+    @GetMapping("/who")
+    public String who(
+            @AuthenticationPrincipal AuthUser authUser
+            ) {
+        System.out.println(authUser);
+        return "AAA";
     }
 }

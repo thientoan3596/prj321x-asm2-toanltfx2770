@@ -1,5 +1,6 @@
 package asm02.dao;
 
+import asm02.entity.Company;
 import asm02.entity.User;
 import asm02.security.AuthUser;
 import org.hibernate.SessionFactory;
@@ -41,6 +42,12 @@ public class UserDaoImpl implements UserDao{
     @Override
     public void insert(User user) {
         sessionFactory.getCurrentSession().save(user);
+    }
+    @Override
+    public void insertRecruiter(User recruiter){
+        sessionFactory.getCurrentSession().save(recruiter);
+        Company defaultCompany= Company.defaultCompany(recruiter);
+        sessionFactory.getCurrentSession().save(defaultCompany);
     }
 
     @Override

@@ -1,11 +1,14 @@
 package asm02.controller.view;
 
 import asm02.dto.request.insert.UserRegisterRequest;
+import asm02.dto.response.UserResponse;
 import asm02.entity.eUserRole;
+import asm02.security.AuthUser;
 import asm02.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -32,8 +35,14 @@ public class HomeViewController {
     private UserService userService;
     @Autowired
     private MessageSource messageSource;
+
     @GetMapping({"/", "/home", "/index"})
-    public String home() {
+    public String home(
+            Model model,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        UserResponse currentUser =  authUser == null ? null : userService.findUser(authUser.getId()).orElse(null);
+        model.addAttribute("user",currentUser);
         return "public/index";
     }
 
@@ -43,7 +52,7 @@ public class HomeViewController {
         if (savedRequest != null)
             model.addAttribute("redirectUrl", savedRequest.getRedirectUrl());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication.getPrincipal()  !="anonymousUser" )
+        if (authentication.getPrincipal() != "anonymousUser")
             return "redirect:/";
         return "public/login";
     }
@@ -57,6 +66,7 @@ public class HomeViewController {
         model.addAttribute("roles", eUserRole.getLocalizedValues(messageSource, locale));
         return "public/register";
     }
+
     @PostMapping("/register")
     public String register(
             @Valid @ModelAttribute("user") UserRegisterRequest user,
@@ -65,10 +75,10 @@ public class HomeViewController {
             Model model,
             RedirectAttributes redirectAttributes
     ) {
-        if(!user.getPassword().equals(user.getPasswordConfirm())){
+        if (!user.getPassword().equals(user.getPasswordConfirm())) {
             String errorMessage = messageSource.getMessage("error.user.register.password.mismatch", null, locale);
             bindingResult.addError(
-                   new FieldError("user", "passwordConfirm", errorMessage)
+                    new FieldError("user", "passwordConfirm", errorMessage)
             );
             bindingResult.addError(
                     new FieldError("user", "password", errorMessage)
@@ -79,12 +89,13 @@ public class HomeViewController {
             return "public/register";
         }
 
-         userService.insert(user);
+        userService.insert(user);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.register", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
         return "redirect:/login";
     }
+
     @RequestMapping("/login-success")
     public String loginSuccess(HttpServletRequest request, HttpServletResponse response) {
         SavedRequest savedRequest = requestCache.getRequest(request, response);

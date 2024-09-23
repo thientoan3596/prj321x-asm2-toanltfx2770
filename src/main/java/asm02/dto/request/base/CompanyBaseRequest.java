@@ -3,6 +3,7 @@ package asm02.dto.request.base;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -13,10 +14,11 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@SuperBuilder
 public abstract class CompanyBaseRequest {
     @NotBlank(message = "{label.company-name} {validation.not-null}")
     @Size(min = 5, max = 255, message = "{label.company-name} {validation.size}")
-    protected String name;
+    protected String companyName;
     @NotBlank(message = "{label.address} {validation.not-null}")
     @Size(min = 5, max = 255, message = "{label.address} {validation.size}")
     protected String address;
@@ -26,6 +28,6 @@ public abstract class CompanyBaseRequest {
     @NotBlank(message = "{label.email} {validation.not-null}")
     @Email(message = "{label.email} {validation.invalid}")
     protected String email;
-    @Size(max = 255,message = "{label.description} {validation.size.max-only")
+    @Size(max = 255,message = "{label.description} {validation.size.max-only}")
     protected String description;
 }

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.company}+ ' - '+ ${company != null ? company.companyName :'!'}">Profile</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header"></div>
+    <div class="content text-center">
+        <div th:if="${company}" class="row justify-content-center">
+            <h1 th:text="#{label.company}+ ' ' + ${company.companyName}">Company Name</h1>
+            <!--/* Logo */-->
+            <div id="company-logo" class="text-center">
+                <div>
+                    <img th:if="${company.logo}" th:src="@{'/uploads/images/' + ${company.logo}}" alt="Company Logo"
+                         class="rounded-circle"
+                         width="150"
+                         height="150">
+                    <img th:unless="${company.logo}" src="/static/assets/img/default-logo.png" alt="Company Log"
+                         class="rounded-circle"
+                         width="150"
+                         height="150">
+                </div>
+                <button class="btn btn-primary my-2" data-bs-target="#uploadLogoModal" data-bs-toggle="modal"
+                        th:text="#{label.upload-logo}">
+                    Upload
+                </button>
+            </div>
+            <!--/* Form */-->
+            <div class="col-xl-5 col-md-9 col-sm-12">
+                <form th:action="@{/recruiter/company}" method="post" th:object="${companyUpdateModel}">
+                    <!--/* Title */-->
+                    <div class="row mb-3">
+                        <div class="col-7">
+                            <h1 class="h3 fw-normal" th:text="#{label.company-detail}">Company Detail</h1>
+                        </div>
+                        <div class="col-5 ">
+                            <button class="w-100 btn  btn-primary" type="submit"
+                                    th:text="#{label.save}">Save
+                            </button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="id" th:value="*{id}">
+                    <!--/* Email */-->
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control"
+                               th:classappend="${#fields.hasErrors('email')}? 'is-invalid' : ''"
+                               id="updateCompany__email" name="email" th:field="*{email}"
+                               th:attr="data-original-value=${company.email}"  required>
+                        <label for="updateCompany__email" th:text="#{label.email}">Email</label>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('email')}"
+                             th:errors="*{email}"></div>
+                    </div>
+                    <!--/* Company name */-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control"
+                               th:classappend="${#fields.hasErrors('companyName')}? 'is-invalid' : ''"
+                               id="updateCompany__companyName" name="companyName" th:field="*{companyName}"
+                               th:attr="data-original-value=${company.companyName}" required>
+                        <label for="updateCompany__companyName" th:text="#{label.company-name}">Company Name</label>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('companyName')}"
+                             th:errors="*{companyName}"></div>
+                    </div>
+                    <!--/* Address */-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control"
+                               th:classappend="${#fields.hasErrors('address')}? 'is-invalid' : ''"
+                               id="updateCompany__address" name="address" th:field="*{address}"
+                               th:attr="data-original-value=${company.address}" placeholder="Đà Nẵng" required>
+                        <label for="updateCompany__address" th:text="#{label.address}">Address</label>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('address')}"
+                             th:errors="*{address}"></div>
+                    </div>
+                    <!--/* Phone */-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control"
+                               th:classappend="${#fields.hasErrors('phone')}? 'is-invalid' : ''"
+                               id="updateCompany__phone" name="phone" th:field="*{phone}"
+                               pattern="(((\\+|00|0)84)|0)(3|5|7|8|9)+([0-9]{8})\b|^$"
+                               th:title="#{message.warn.phone}"
+                               th:attr="data-original-value=${company.phone}" placeholder="+84933399933" required>
+                        <label for="updateCompany__phone" th:text="#{label.company-phone}">Company Phone</label>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('phone')}"
+                             th:errors="*{phone}"></div>
+                    </div>
+                    <!--/* Description */-->
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control"
+                               th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
+                               id="updateCompany__description" name="description" th:field="*{description}"
+                               th:attr="data-original-value=${company.description}">
+                        <label for="updateCompany__description"
+                               th:text="#{label.company-description}">Company description</label>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('description')}"
+                             th:errors="*{description}"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Upload Logo*/-->
+<div class="modal fade" id="uploadLogoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{label.upload-logo}">Upload logo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
+                    <div class="mb-3">
+                        <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
+                            image</label>
+                        <input class="form-control" type="file" id="uploadCompany_logo" accept=".jpg, .jpeg, .png"
+                               name="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
+                        Upload
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
+                        Cancel
+                    </button>
+                </form>
+                <div th:unless="${company}" class="text-danger">
+                    Malfunction! Not expecting to reach here!
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+</body>
+</html>

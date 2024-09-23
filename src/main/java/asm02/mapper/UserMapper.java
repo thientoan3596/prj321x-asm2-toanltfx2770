@@ -7,7 +7,7 @@ import asm02.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",uses = {CompanyMapper.class})
 public interface UserMapper {
     UserResponse toResponse(User user);
     @Mapping(target = "id",ignore = true)
@@ -15,6 +15,7 @@ public interface UserMapper {
     @Mapping(target = "cvList", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt",expression = "java(new java.sql.Timestamp(System.currentTimeMillis()))")
+    @Mapping(target = "company",ignore = true)
     User toEntity(UserRegisterRequest payload);
 
 
@@ -24,5 +25,6 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "company",ignore = true)
     User toEntity(UserRequest payload);
 }

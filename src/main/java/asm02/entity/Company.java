@@ -1,14 +1,13 @@
 package asm02.entity;
 
 import asm02.dto.request.update.CompanyRequest;
-import asm02.dto.response.CompanyResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
-import org.hibernate.LazyInitializationException;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,7 +22,8 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    @Column(name = "company_name")
+    private String companyName;
     private String address;
     private String description;
     private String email;
@@ -37,27 +37,16 @@ public class Company {
     @JoinColumn(name = "recruiter_id")
     @OneToOne
     private User recruiter;
-
-    /**
-     * @throws IllegalStateException if being called outside Transaction
-     */
-    public CompanyResponse toResponse() {
-        try {
-            return CompanyResponse.builder()
-                    .id(this.id)
-                    .name(this.name)
-                    .address(this.address)
-                    .description(this.description)
-                    .email(this.email)
-                    .phone(this.phone)
-                    .logo(this.logo)
-                    .recruiter_id(recruiter.getId())
-                    .build();
-        } catch (Exception e) {
-            if (e instanceof LazyInitializationException)
-                throw new IllegalStateException("Lazily loading outside Tx!");
-            throw e;
-        }
+    public static Company defaultCompany(User user) {
+        if(user ==null || user.getId() == null) throw new IllegalStateException("User is not persistent! Method defaultCompany() accept only persistent user!");
+        return Company.builder()
+                .companyName("Cập nhật tên công ty!")
+                .email(user.getEmail()!=null?user.getEmail():("user"+user.getId()+"company"+ UUID.randomUUID() +"@email"))
+                .address(user.getAddress()!=null?user.getAddress():("NO ADDRESS"))
+                .phone(user.getPhone()!=null?user.getPhone():("NO PHONE"))
+                .createdAt(new Timestamp(System.currentTimeMillis()))
+                .recruiter(user)
+                .build();
     }
 
     /**
@@ -65,7 +54,7 @@ public class Company {
      */
     public void merge(CompanyRequest request) {
         if (!request.getId().equals(id)) throw new IllegalStateException("Merging different entities");
-        if (request.getName() != null) name = request.getName();
+        if (request.getCompanyName() != null) companyName = request.getCompanyName();
         if (request.getPhone() != null) phone = request.getPhone();
         if (request.getAddress() != null) address = request.getAddress();
         if (request.getEmail() != null) email = request.getEmail();

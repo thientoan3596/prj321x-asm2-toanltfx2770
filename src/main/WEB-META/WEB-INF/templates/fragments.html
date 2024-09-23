@@ -27,11 +27,15 @@
         toast('[[${message}]]', '[[${type != null ? type : 'success'}]]');
         },1000);
 
+
+
         </script>
         <script th:unless="${translated}">
         setTimeout(()=>{
         toast('[[#{${message}}]]', '[[${type != null ? type : 'success'}]]');
         },1000);
+
+
 
         </script>
     </th:block>
@@ -48,11 +52,16 @@
             <li><a href="#" class="nav-link px-2 link-dark" th:text="#{label.company}">Company</a></li>
             <li><a href="#" class="nav-link px-2 link-dark" th:text="#{label.post-a-job}">Post a job</a></li>
         </ul>
-        <div th:if="${#authentication.principal != 'anonymousUser'}" class="col-md-3 text-end">
+        <div sec:authorize="isAuthenticated()" class="col-md-5 text-end d-flex justify-content-end">
+            <div sec:authorize="hasRole('ROLE_RECRUITER')" th:if="${user!=null}">
+                <a  class="btn btn-primary" role="button"   th:text="${user.company.companyName}" th:href="@{/recruiter/company}">
+                </a>
+            </div>
             <div class="dropdown">
                 <button class="btn dropdown-toggle"
                         type="button" id="userDropdownMenu"
-                        data-bs-toggle="dropdown" th:text="#{message.hello}+' '+ ${#authentication.principal.fullName} ">
+                        data-bs-toggle="dropdown"
+                        th:text="#{message.hello}+' '+ ${#authentication.principal.fullName} ">
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="/user/profile" th:text="#{label.profile}">Profile</a>
@@ -60,7 +69,7 @@
                 </div>
             </div>
         </div>
-        <div th:unless="${#authentication.principal != 'anonymousUser'}" class="col-md-3 text-end">
+        <div sec:authorize="isAnonymous()" class="col-md-3 text-end">
             <a href="/login" class="btn btn-outline-primary me-2" role="button" th:text="#{label.login}">Login</a>
             <a href="/register" class="btn btn-primary" role="button" th:text="#{label.register}">Register</a>
         </div>

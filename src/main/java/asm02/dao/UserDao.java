@@ -11,5 +11,6 @@ public interface UserDao {
     Optional<User> findById(long id);
     Optional<AuthUser> findByEmail(String email);
     void insert(User user);
+    void insertRecruiter(User recruiter);
     void update(User user);
 }

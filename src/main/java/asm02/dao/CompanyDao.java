@@ -11,4 +11,5 @@ public interface CompanyDao {
     Optional<Company> findById(Long id);
     void insert(Company company);
     void update(Company company);
+     Optional<Company> findByRecruiter(long recruiterId);
 }

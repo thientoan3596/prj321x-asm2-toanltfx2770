@@ -30,7 +30,7 @@ public class CompanyDaoImpl implements CompanyDao {
     @Override
     public Optional<Company> findById(Long id) {
         return sessionFactory.getCurrentSession()
-                .createQuery("where id = :id", Company.class)
+                .createQuery("from Company where id = :id", Company.class)
                 .setParameter("id", id)
                 .getResultStream()
                 .findFirst();
@@ -43,5 +43,14 @@ public class CompanyDaoImpl implements CompanyDao {
     @Override
     public void update(Company company) {
         sessionFactory.getCurrentSession().update(company);
+    }
+
+    @Override
+    public Optional<Company> findByRecruiter(long recruiterId) {
+        return sessionFactory.getCurrentSession()
+                .createQuery("from Company where recruiter.id = :id and deletedAt is null", Company.class)
+                .setParameter("id", recruiterId)
+                .getResultStream()
+                .findFirst();
     }
 }

@@ -26,10 +26,11 @@ public class UserResponse {
     private String avatar;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Timestamp createdAt;
+    private CompanyResponse company;
 
     public CVResponse getDefaultCV() {
         if (cvList.size() != 0)
-            return cvList.stream().filter(cvResponse -> cvResponse.getIsDefault()).findFirst().orElse(cvList.iterator().next());
+            return cvList.stream().filter(CVResponse::getIsDefault).findFirst().orElse(cvList.iterator().next());
         return null;
     }
 }

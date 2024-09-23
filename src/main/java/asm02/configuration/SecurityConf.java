@@ -24,6 +24,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .antMatchers("/dev/*").permitAll()
                 .antMatchers( "/static/**", "/public/**").permitAll()
                 .antMatchers("/","/login","/logout","/register").permitAll()
+                .antMatchers("/recruiter/**").hasRole("RECRUITER")
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
