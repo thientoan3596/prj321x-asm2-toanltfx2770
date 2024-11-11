@@ -1,22 +1,30 @@
 package asm02.controller.view;
 
+import asm02.dto.request.base.CompanyFollowRequest;
+import asm02.dto.request.base.JobFollowRequest;
 import asm02.dto.request.update.UserRequest;
+import asm02.dto.response.ApplicationWithJobPostLogoResponse;
+import asm02.dto.response.CompanyFollowResponse;
+import asm02.dto.response.JobFollowResponse;
 import asm02.security.AuthUser;
-import asm02.service.CVService;
-import asm02.service.FileService;
-import asm02.service.UserService;
+import asm02.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Locale;
 
@@ -24,13 +32,24 @@ import java.util.Locale;
 @RequestMapping("/user")
 public class UserViewController {
     @Autowired
+    private Validator validator;
+    @Autowired
     private UserService userService;
+    @Autowired
+    private ApplicationService applicationService;
+    @Autowired
+    private CVService cvService;
     @Autowired
     private FileService fileService;
     @Autowired
-    private MessageSource messageSource;
+    private JobPostService jobPostService;
     @Autowired
-    private CVService cvService;
+    private JobCategoryService jobCategoryService;
+    @Autowired
+    private FollowService followService;
+    @Autowired
+    private MessageSource messageSource;
+
 
     @GetMapping("/profile")
     public String profile(
@@ -39,7 +58,7 @@ public class UserViewController {
             @AuthenticationPrincipal AuthUser authUser
 
     ) {
-        if(authUser==null)
+        if (authUser == null)
             throw new AccessDeniedException("Please login!");
         model.addAttribute("user", userService.findUser(authUser.getId()).orElseThrow(() -> new EntityNotFoundException("No such user with id: " + authUser.getId())));
         return "user/profile";
@@ -94,9 +113,6 @@ public class UserViewController {
             redirectAttributes.addFlashAttribute("translated", true);
             return "redirect:/user/profile";
         }
-        // TODO: 9/22/2024 Rename if duplicated!
-        // Currently, if new file name is same with old one, does not thing
-        // which may cause confusing when selecting cv to apply for job later.
         cvService.uploadCv(file, userId, isDefault);
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.cv-uploaded", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
@@ -131,6 +147,110 @@ public class UserViewController {
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
         return "redirect:/user/profile";
+    }
+
+    @GetMapping("applied-jobs")
+    public String appliedJobs(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            Model model,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<ApplicationWithJobPostLogoResponse> applications = applicationService.findByUserId_JobPostWithLogo(authUser.getId(), pageable);
+        model.addAttribute("applications", applications.getContent());
+        model.addAttribute("totalPage", applications.getTotalPages());
+        model.addAttribute("currentPage", applications.getNumber());
+        return "user/applied-jobs";
+    }
+
+    @GetMapping("saved-companies")
+    public String savedCompanies(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            Model model,
+            @AuthenticationPrincipal AuthUser authUser
+    ) {
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<CompanyFollowResponse> followResponse = followService.findFollowingCompanies(authUser.getId(), pageable);
+        model.addAttribute("companies", followResponse.getContent());
+        model.addAttribute("totalPage", followResponse.getTotalPages());
+        model.addAttribute("currentPage", followResponse.getNumber());
+        return "user/saved-companies";
+    }
+    @GetMapping("saved-jobs")
+    public String savedJobs(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            Model model,
+            @AuthenticationPrincipal AuthUser authUser
+    ){
+        Pageable pageable = PageRequest.of(page,10);
+        Page<JobFollowResponse> followResponse = followService.findFollowingJobs(authUser.getId(), pageable);
+        model.addAttribute("jobs",followResponse.getContent());
+        model.addAttribute("totalPage", followResponse.getTotalPages());
+        model.addAttribute("currentPage", followResponse.getNumber());
+        model.addAttribute("cvList", cvService.findByUserId(authUser.getId()));
+        return "user/saved-jobs";
+    }
+
+    @PostMapping("follow-company")
+    public String followCompany(
+            @ModelAttribute CompanyFollowRequest followRequest,
+            HttpServletRequest request,
+            RedirectAttributes redirAttr,
+            Locale locale
+    ) {
+        followService.insert(followRequest);
+        String refer = request.getHeader("referer");
+        redirAttr.addFlashAttribute("message", messageSource.getMessage("message.success.followed-company", null, locale));
+        redirAttr.addFlashAttribute("type", "success");
+        redirAttr.addFlashAttribute("translated", true);
+        System.out.println(refer);
+        return "redirect:" + refer;
+    }
+
+    @PostMapping("unfollow-company")
+    public String unfollowCompany(
+            @RequestParam Long followId,
+            HttpServletRequest request,
+            RedirectAttributes redirAttr,
+            Locale locale
+    ) {
+        followService.unfollowCompany(followId);
+        String refer = request.getHeader("referer");
+        redirAttr.addFlashAttribute("message", messageSource.getMessage("message.success.unfollowed-company", null, locale));
+        redirAttr.addFlashAttribute("type", "success");
+        redirAttr.addFlashAttribute("translated", true);
+        return "redirect:" + refer;
+    }
+
+    @PostMapping("follow-job")
+    public String followJob(
+            @ModelAttribute JobFollowRequest followRequest,
+            HttpServletRequest request,
+            RedirectAttributes redirAttr,
+            Locale locale
+    ) {
+        followService.insert(followRequest);
+        String refer = request.getHeader("referer");
+        redirAttr.addFlashAttribute("message", messageSource.getMessage("message.success.followed-job", null, locale));
+        redirAttr.addFlashAttribute("type", "success");
+        redirAttr.addFlashAttribute("translated", true);
+        System.out.println(refer);
+        return "redirect:" + refer;
+    }
+
+    @PostMapping("unfollow-job")
+    public String unfollowJob(
+            @RequestParam Long followId,
+            HttpServletRequest request,
+            RedirectAttributes redirAttr,
+            Locale locale
+    ) {
+        followService.unfollowJob(followId);
+        String refer = request.getHeader("referer");
+        redirAttr.addFlashAttribute("message", messageSource.getMessage("message.success.unfollowed-job", null, locale));
+        redirAttr.addFlashAttribute("type", "success");
+        redirAttr.addFlashAttribute("translated", true);
+        return "redirect:" + refer;
     }
 
     /**

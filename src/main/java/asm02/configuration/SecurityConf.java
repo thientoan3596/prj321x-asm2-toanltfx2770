@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 @Configuration
@@ -21,14 +20,23 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/dev/*").permitAll()
-                .antMatchers( "/static/**", "/public/**").permitAll()
-                .antMatchers("/","/login","/logout","/register").permitAll()
+                .antMatchers("/user/profile").authenticated()
+                .antMatchers("/user/**").hasRole("JOB_SEEKER")
                 .antMatchers("/recruiter/**").hasRole("RECRUITER")
-                .anyRequest().authenticated()
+                .antMatchers("/dev/**").permitAll()
+                .antMatchers("/static/**", "/public/**").permitAll()
+                .antMatchers("/", "/login", "/logout", "/register").permitAll()
+                .antMatchers("/**").permitAll()
+//                .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
-                .accessDeniedHandler(new AccessDeniedHandlerImpl())
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    request.setAttribute("errorMessage", "Access Denied!");
+                    request.setAttribute("errorCode", 403);
+                    request.setAttribute("errorStatus", "Forbidden");
+                    request.setAttribute("errorDetail", "You do not have permission to access this resource.");
+                    request.getRequestDispatcher("/error").forward(request, response);
+                })
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
@@ -46,16 +54,19 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable();
     }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService())
                 .passwordEncoder(passwordEncoder());
     }
+
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
         return new AuthService();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new PasswordEncoderImpl();

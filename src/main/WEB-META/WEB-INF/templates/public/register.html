@@ -15,7 +15,7 @@
     <div class="content text-center">
         <div class="row justify-content-center">
             <div class="col-md-6 col-sm-12">
-                <form th:action="@{/register}" method="POST" th:object="${user}">
+                <form  th:action="@{/register}" method="POST" th:object="${user}">
                     <h1 class="h3 mb-3 fw-normal text-center">Đăng ký</h1>
                     <div class="row gs-2">
                         <!--full_name-->
@@ -54,25 +54,10 @@
                                      th:errors="*{address}"></div>
                             </div>
                         </div>
-                        <!--description-->
-                        <div class="col-12 mb-3">
-                            <div class="form-floating">
-                                <textarea class="form-control" id="description" name="description"
-                                          style="height: 13vh"
-                                          th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
-                                          th:field="*{description}">
-                                </textarea>
-                                <label for="description">Mô tả</label>
-                                <div class="invalid-feedback"
-                                     th:if="${#fields.hasErrors('description')}"
-                                     th:errors="*{description}"></div>
-                            </div>
-                        </div>
-                        <!--TODO cv file-->
                         <!--role-->
                         <div class="col-12 mb-3">
                             <div class="form-floating">
-                                <select name="role" id="role" class="form-select" th:field="*{role}" required >
+                                <select name="role" id="role" class="form-select" th:field="*{role}" required>
                                     <option th:each="entry : ${roles.entrySet()}"
                                             th:value="${entry.key}"
                                             th:text="${entry.value}"

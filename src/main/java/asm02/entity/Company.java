@@ -7,6 +7,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -25,11 +26,12 @@ public class Company {
     @Column(name = "company_name")
     private String companyName;
     private String address;
+    @Lob
     private String description;
     private String email;
     private String phone;
     private String logo;
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
     private Timestamp createdAt;
     @Column(name = "deleted_at")
     @JsonIgnore
@@ -37,6 +39,10 @@ public class Company {
     @JoinColumn(name = "recruiter_id")
     @OneToOne
     private User recruiter;
+
+    @JoinColumn(name = "company_id",insertable = false,updatable = false)
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<JobPost> jobPostList;
     public static Company defaultCompany(User user) {
         if(user ==null || user.getId() == null) throw new IllegalStateException("User is not persistent! Method defaultCompany() accept only persistent user!");
         return Company.builder()

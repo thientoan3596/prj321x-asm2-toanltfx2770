@@ -9,7 +9,10 @@
     <option name="contextPath" value="/" />
     <option name="docBase" value="$PROJECT_DIR$/src/main/WEB-META" />
     <option name="envOptions">
-      <map />
+      <map>
+        <entry key="EMAIL_PASSWORD" value="tunl igjj jbow ghih" />
+        <entry key="EMAIL_USERNAME" value="liangsandoan@gmail.com" />
+      </map>
     </option>
     <option name="extraClassPath" value="" />
     <option name="tomcatInfo">

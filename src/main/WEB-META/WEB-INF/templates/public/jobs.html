@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.jobs}">Jobs Posted</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='jobs')"></div>
+    <div class="content" style="min-height:52vh;">
+        <div class="job-list row"  >
+            <div class="col-12" th:if="${searchBy}">
+                <div class="row justify-content-center">
+                    <div class="col-6 text-center">
+                        <span th:text="#{label.search-result}"></span>
+                        <span class="fw-bold" th:text="${searchBy}"></span>
+                    </div>
+                </div>
+            </div>
+            <div th:if="${jobs==null || jobs.size()==0}" class="col text-center">
+                <p th:text="#{message.info.no-job-match-keyword}"></p>
+            </div>
+            <div class="col-md-4 d-flex align-self-stretch my-1" th:each="job : ${jobs}">
+                <div class="card w-100">
+                    <div class="card-body">
+                        <div class="d-flex flex-row">
+                            <div class="company-logo col-md-3 d-flex align-items-center">
+                                <img th:if="${job.companyLogo}" th:src=" @{'/uploads/images/' + ${job.companyLogo}}" class="img-fluid"/>
+                                <img th:unless="${job.companyLogo}" src="/static/assets/img/default-logo.png" class="img-fluid" alt="Company Log"/>
+                            </div>
+                            <div class="job-content ps-2 col-md-9 d-flex flex-column text-start">
+                                <div class="job-title text-truncate">
+                                    <a th:href="@{/job/{id}(id=${job.id})}" class="text-decoration-none">
+                                        <span th:text="${job.title}" class="fs-5 fw-bold text-primary"></span>
+                                    </a>
+                                </div>
+                                <div class="company-name">
+                                    <span th:text="${job.company}" class="lead text-truncate"></span>
+                                </div>
+                                <div class="job-type">
+                                    <span class="badge bg-primary" th:text="${job.type}"></span>
+                                    <span class="badge bg-primary" th:text="${job.category}"></span>
+                                </div>
+                                <div class="brief-detail">
+                                    <span class="badge bg-secondary d-inline-block text-truncate" th:text="${job.salaryRange}" style="max-width:15vw;"></span>
+                                    <span class="badge bg-secondary d-inline-block text-truncate" th:text="${job.address}" style="max-width:15vw;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragments::pagination(${currentPage}, ${totalPage})"></div>
+    </div>
+    <div th:replace="fragments::footer"></div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Upload Logo*/-->
+<div class="modal fade" id="uploadLogoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{label.upload-logo}">Upload logo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post"
+                      enctype="multipart/form-data">
+                    <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
+                    <div class="mb-3">
+                        <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
+                            image</label>
+                        <input class="form-control" type="file" id="uploadCompany_logo" accept=".jpg, .jpeg, .png"
+                               name="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
+                        Upload
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
+                        Cancel
+                    </button>
+                </form>
+                <div th:unless="${company}" class="text-danger">
+                    Malfunction! Not expecting to reach here!
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+</body>
+</html>

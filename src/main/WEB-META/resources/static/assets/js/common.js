@@ -1,3 +1,9 @@
+function share(url) {
+  var currentUrl = encodeURIComponent(window.location.href);
+  const shareUrl = url + currentUrl;
+  console.log(shareUrl);
+  window.open(shareUrl, '_blank');
+}
 /**
  * @param {string} msg - message to be toasted
  * @param {ToastType} [type] - Default: "success"
@@ -35,5 +41,10 @@ window.addEventListener('DOMContentLoaded', () => {
   sessionStorage.removeItem('toastMessage');
   if (toastMessage)
     toast(toastMessage, toastType ?? "success");
+  //#endregion Flash Toast
+  //#region Input Date
+  document.querySelectorAll('input[type=date][data-validation=today').forEach(input => {
+    input.setAttribute('min', new Date().toISOString().split('T')[0]);
+  });
   //#endregion Flash Toast
 });

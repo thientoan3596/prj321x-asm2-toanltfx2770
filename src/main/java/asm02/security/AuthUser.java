@@ -32,6 +32,11 @@ public class AuthUser implements UserDetails {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private Timestamp deletedAt;
+    @Transient
+    private Long companyId;
+
+//    @OneToOne(mappedBy = "recruiter" ,fetch = FetchType.EAGER)
+//    private Company company;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+role.name()));

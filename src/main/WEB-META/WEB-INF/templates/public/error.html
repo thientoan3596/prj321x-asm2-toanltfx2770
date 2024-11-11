@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:if="${errorStatus}"  th:text="${errorStatus}">Error</title>
+    <title th:unless="${errorStatus}" th:text="#{label.error}">Error</title>
+    <div th:replace="fragments::common-resources-top"></div>
+    <link href="https://fonts.googleapis.com/css?family=Fira+Mono:400&display=swap " rel="stylesheet"/>
+    <style>
+
+    </style>
+</head>
+<body class="d-flex h-100 text-center">
+<div class="container p-3">
+    <div th:replace="fragments::header"></div>
+    <main class="px-5 mx-5">
+        <div class="row mt-5 ">
+            <div class="col-5">
+                <div class="d-flex flex-column">
+                    <div th:if="${errorCode}" class="display-1 " th:text="${errorCode}"></div>
+                    <div th:unless="${errorCode}" class="display-1 " th:text="#{label.error}"></div>
+                    <p  class="d-block">Oops, something went wrong</p>
+                    <p th:if="${errorMessage}" th:text="'['+${errorMessage}+']'"  class="d-block lead" ></p>
+                </div>
+
+            </div>
+            <div class="col-7">
+                <div th:if="${errorStatus}" class="display-6 " th:text="${errorStatus}"></div>
+                <div th:unless="${errorStatus}" class="display-6 ">Oops, something went wrong</div>
+                <p th:if="${errorDetail}" th:text="${errorDetail}"  class="d-block lead" ></p>
+                <p th:unless="${errorDetail}" class="d-block lead" >Might need to check logs for detail</p>
+
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

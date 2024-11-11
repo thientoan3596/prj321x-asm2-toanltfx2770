@@ -16,6 +16,7 @@ public interface FileService {
      * @return file name only. NB! NO PATH
      */
     String uploadFile(MultipartFile file);
+    String uploadFile(MultipartFile file,String name);
 
     /**
      * Deleting file!

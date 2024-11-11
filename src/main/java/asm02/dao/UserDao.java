@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserDao {
+    Long countUser();
     List<User> findAll();
     Optional<User> findById(long id);
     Optional<AuthUser> findByEmail(String email);

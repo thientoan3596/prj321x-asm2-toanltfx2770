@@ -1,60 +1,32 @@
 package asm02.controller;
 
-import asm02.dao.UserDao;
-import asm02.dto.response.UserResponse;
-import asm02.entity.User;
-import asm02.mapper.UserMapper;
-import asm02.security.AuthUser;
+import asm02.service.EmailServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("dev")
 public class DevController {
-    @Value("${FILE.UPLOAD-DIR}")
-    private String uploadDir;
     @Autowired
-    private ServletContext servletContext;
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private UserMapper userMapper;
-    @GetMapping("ping")
-    public String ping(){
-        return "pong";
-    }
-    @GetMapping("/user")
-    @Transactional
-    public String getUser() {
-        Long id = 1L;
-        User user = userDao.findById(id).orElse(null);
-        if(user == null)
-            return "User not found";
-        UserResponse response =  userMapper.toResponse(user);
-        return response.toString();
+    private EmailServiceImpl emailServiceImpl;
+    @GetMapping("test")
+    public String test() {
+        return String.valueOf(emailServiceImpl.testConnection());
     }
 
 
-    @GetMapping("/dir")
-    public String dir(@RequestParam String content) {
-        return "Depreciated";
+    @GetMapping("clearSession")
+    public String clearSession(HttpSession session){
+        session.invalidate();
+        return "OKE";
     }
-
-    @GetMapping("/read")
-    public String read(HttpSession s) {
-        return "Depreciated";
-    }
-    @GetMapping("/who")
-    public String who(
-            @AuthenticationPrincipal AuthUser authUser
-            ) {
-        System.out.println(authUser);
-        return "AAA";
+    @RequestMapping("/sendEmail")
+    public String sendEmail() {
+        emailServiceImpl.sendEmail("toanlt3596@gmail.com", "Test Subject", "This is a test email.");
+        return "emailSent"; // View name to confirm the email was sent
     }
 }

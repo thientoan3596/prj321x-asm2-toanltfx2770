@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--suppress XmlDuplicatedId -->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.job-detail}">Job detail</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header"></div>
+    <div class="content">
+        <div class="row justify-content-center">
+            <h1 th:text="#{label.job-detail}" class="text-center"></h1>
+            <div class="row job-info justify-content-center align-items-center">
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-md-8 d-flex">
+                            <div class="company-logo col-md-2 d-flex align-items-center border">
+                                <a th:href="@{/company/{id}(id=${job.companyId})}" class="text-decoration-none">
+                                    <img th:if="${job.companyLogo}" th:src=" @{'/uploads/images/' + ${job.companyLogo}}"
+                                         alt="Company Log"
+                                         class="img-fluid"/>
+                                    <img th:unless="${job.companyLogo}" src="/static/assets/img/default-logo.png"
+                                         alt="Company Log"/>
+                                </a>
+                            </div>
+                            <div class="col-md-9 ms-3 d-flex flex-column text-start justify-content-center">
+                                <div class="job-title text-truncate">
+                                    <span th:text="${job.title}" class="fs-5 fw-bold "></span>
+                                </div>
+                                <div class="brief-detail d-flex flex-row" style="font-size:0.8rem;">
+                                    <div class="px-1">
+                                        <i class="bi bi-briefcase"></i>
+                                        <span th:text="${job.company}"></span>
+                                    </div>
+                                    <div class="px-1">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                        <span th:text="${job.address}"></span>
+                                    </div>
+                                    <div class="px-1">
+                                        <i class="bi bi-clock"></i>
+                                        <span th:text="${job.type}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/* Job Top Details Btns Section */-->
+                        <div class="col-md-4 d-flex flex-column justify-content-center align-items-center">
+                            <div class="row w-100 px-0 justify-content-center align-items-center">
+                                <!--/* Recruiter Btns */-->
+                                <th:block sec:authorize="hasRole('ROLE_RECRUITER')"
+                                          th:if="${#authentication.principal.companyId == job.companyId}">
+                                    <a class="btn btn-warning me-2" role="button"
+                                       th:href="@{/recruiter/job-post/{id}(id=${job.id})}"
+                                       th:text="#{label.update}">Update</a>
+                                </th:block>
+                                <!--/* Guess and Job Seeker Btns */-->
+                                <th:block th:if="${
+                                    not #authorization.expression('isAuthenticated()')
+                                    or not #authorization.expression('hasRole(''ROLE_RECRUITER'')')
+                                    }">
+                                    <div class="col-lg-6 col-md-12 d-flex" sec:authorize="isAuthenticated()"
+                                         style="font-size: 0.75rem;padding:.5rem .25rem;">
+                                        <form th:if="${follow != null && follow.active}"
+                                              th:action="@{/user/unfollow-job/}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" th:value="${follow.id}" name="followId"/>
+                                            <button type="submit" class="btn btn-outline-danger">
+                                                <span class="small" th:text="#{label.unsave}">Unfollow</span>
+                                            </button>
+                                        </form>
+                                        <form th:if="${follow == null || !follow.active}"
+                                              th:action="@{/user/follow-job/}"
+                                              method="post" class="d-inline">
+                                            <input type="hidden" th:value="${job.id}" name="jobPostId"/>
+                                            <input type="hidden" th:value="${#authentication.principal.id}"
+                                                   name="userId"/>
+                                            <button type="submit" class="btn btn-outline-danger mx-3">
+                                                <i class="bi bi-heart"></i>
+                                                <span class="small" th:text="#{label.save}"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-5 col-md-12" style="padding-left:.25rem;padding:.5rem .25rem; ">
+                                        <button th:if="${appliedApplication!=null}" class="btn btn-primary"
+                                                th:text="#{${'label.'+#strings.toLowerCase(appliedApplication.getStatus())}}"
+                                                disabled>
+                                        </button>
+                                        <th:block th:unless="${appliedApplication!=null}">
+                                            <th:block th:if="${#dates.createNow().before(job.deadline) }">
+                                                <button th:if="${#authorization.expression('isAuthenticated()')}"
+                                                        class="btn btn-primary"
+                                                        th:id="'applyJobModal__btn_job'+${job.id}"
+                                                        th:attr="onclick=|toggleApplyJobModalHandler('${job.title}',${job.id})|">
+                                                    <span th:text="#{label.apply}" style="font-size: .75rem;"></span>
+                                                </button>
+                                                <button th:unless="${#authorization.expression('isAuthenticated()')}"
+                                                        class="btn btn-primary"
+                                                        data-bs-toggle="modal" data-bs-target="#applyJobModal">
+                                                    <span th:text="#{label.apply}" style="font-size: .75rem;"></span>
+                                                </button>
+                                            </th:block>
+                                        </th:block>
+                                    </div>
+                                </th:block>
+                            </div>
+                            <th:block th:if="${#dates.createNow().after(job.deadline)}">
+                                <div>
+                                    <span class="badge bg-secondary " th:text="#{label.expired}">Expired</span>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                    <div class="row pt-5">
+                        <!--/* Job Desc Section */-->
+                        <div class="col-md-8">
+                            <div class="text-start text-primary">
+                                <i class="bi bi-text-paragraph"></i>
+                                <span th:text="#{label.description}"></span>
+                            </div>
+                            <div>
+                                <div class="content mt-3" th:utext="${job.description}"></div>
+                            </div>
+                        </div>
+                        <!--/* Job Detail Section */-->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div th:text="#{label.short-description}" class="fs-5 text-primary"></div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.created-date}+':'">Ngày tạo:</span>
+                                        <span class="fs-6 lead" th:text="${job.createdAt}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.job-type}+':'"></span>
+                                        <span class="lead fs-6" th:text="${job.type}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.category}+':'"></span>
+                                        <span class="lead fs-6" th:text="${category}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.yoe}+':'"></span>
+                                        <span class="lead fs-6" th:text="${job.yoe}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.address}+':'"></span>
+                                        <span class="lead fs-6" th:text="${job.address}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.salary-range}+':'"></span>
+                                        <span class="lead fs-6" th:text="${job.salaryRange}"></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-bold" th:text="#{label.application-deadline}+':'"></span>
+                                        <span class="lead fs-6" th:text="${job.deadline}"></span>
+                                        <th:block th:if="${#dates.createNow().after(job.deadline)}">
+                                            <span class="badge bg-secondary" th:text="#{label.expired}">Expired</span>
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mt-5">
+                                <div class="card-body">
+                                    <div class="fs-5 text-primary">Share</div>
+                                    <div>
+                                        <a href="#" onclick="share('https://www.facebook.com/sharer/sharer.php?u=')"
+                                           class="text-decoration-none">
+                                            <i class="bi bi-facebook"></i>
+                                        </a>
+                                        <a href="#" onclick="share('https://twitter.com/intent/tweet?url=')"
+                                           class="text-decoration-none">
+                                            <i class="bi bi-twitter"></i>
+                                        </a>
+                                        <a href="#"
+                                           onclick="share('https://www.linkedin.com/sharing/share-offsite/?url=')"
+                                           class="text-decoration-none">
+                                            <i class="bi bi-linkedin"></i>
+                                        </a>
+                                        <a href="#" onclick="share('http://pinterest.com/pin/create/link/?url=')"
+                                           class="text-decoration-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                                 fill="currentColor" class="bi bi-pinterest" viewBox="0 0 16 16">
+                                                <path d="M8 0a8 8 0 0 0-2.915 15.452c-.07-.633-.134-1.606.027-2.297.146-.625.938-3.977.938-3.977s-.239-.479-.239-1.187c0-1.113.645-1.943 1.448-1.943.682 0 1.012.512 1.012 1.127 0 .686-.437 1.712-.663 2.663-.188.796.4 1.446 1.185 1.446 1.422 0 2.515-1.5 2.515-3.664 0-1.915-1.377-3.254-3.342-3.254-2.276 0-3.612 1.707-3.612 3.471 0 .688.265 1.425.595 1.826a.24.24 0 0 1 .056.23c-.061.252-.196.796-.222.907-.035.146-.116.177-.268.107-1-.465-1.624-1.926-1.624-3.1 0-2.523 1.834-4.84 5.286-4.84 2.775 0 4.932 1.977 4.932 4.62 0 2.757-1.739 4.976-4.151 4.976-.811 0-1.573-.421-1.834-.919l-.498 1.902c-.181.695-.669 1.566-.995 2.097A8 8 0 1 0 8 0"/>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="mb-5">
+                </div>
+            </div>
+            <!--/* Related Jobs Sections */-->
+            <div class="row related-jobs">
+            </div>
+            <!--/* Candidate Application Sections */-->
+            <div th:if="${applicationsContent != null}" class="row justify-content-center">
+                <div class="col-6 ">
+                    <h2 class="text-center" th:text="#{label.candidates}"></h2>
+                    <div class="row">
+                        <div class="col">
+                            <th:block th:each="candidate : ${applicationsContent}">
+                                <a class="card mt-2 text-decoration-none" role="button"
+                                   th:href="@{/recruiter/application/{id}(id=${candidate.id})}" style="color: inherit;">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-3 d-flex justify-content-center align-self-center">
+                                                <img th:if="${candidate.userAvatar}"
+                                                     th:src="@{'/uploads/images/' + ${candidate.userAvatar}}"
+                                                     alt="Candidate Avatar"
+                                                     class="rounded-circle img-fluid"
+                                                     style="max-width:10vw; max-height:10vh;">
+                                                <img th:unless="${candidate.userAvatar}"
+                                                     src="/static/assets/img/default-avatar.png"
+                                                     alt="User Default Avatar"
+                                                     class="rounded-circle img-fluid"
+                                                     style="max-width:10vw; max-height:10vh;">
+                                            </div>
+                                            <div class="col-6 align-self-center">
+                                                <div class="fs-5" th:text="${candidate.user}"></div>
+                                                <div class="lead fs-6" th:text="${candidate.userEmail}"></div>
+                                            </div>
+                                            <div class="col-3 align-self-center">
+                                                <div th:text="#{${'label.'+#strings.toLowerCase(candidate.getStatus())}}"
+                                                     th:classappend="${candidate.getStatus() == T(asm02.entity.eApplicationStatus).PENDING ?
+                                                                                                        'text-warning': 'text-secondary'}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </th:block>
+
+                            <div th:if="${applicationsContent.size()} == 0" class="text-center lead"
+                                 th:text="#{label.no-candidate}">
+                            </div>
+                            <th:block th:unless="${applicationsContent.size()} == 0">
+                                <div class="d-flex justify-content-center mt-3">
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <th:block
+                                                    th:each="pageNum : ${#numbers.sequence(0, applicationsTotalPage - 1)}">
+                                                <li th:classappend="${pageNum == applicationCurrentPage ? 'active page-item' : 'page-item'}">
+                                                    <a class="page-link" th:href="'?page='+${pageNum}"
+                                                       th:text="${pageNum + 1}"></a>
+                                                </li>
+                                            </th:block>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="fragments :: footer"></div>
+</div>
+<!--/* Model Sections */-->
+<th:block th:replace="fragments::apply-modal-form">
+</th:block>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+<script th:src="@{/static/assets/js/job.js}"></script>
+</body>
+</html>

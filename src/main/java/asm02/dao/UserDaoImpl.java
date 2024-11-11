@@ -2,6 +2,7 @@ package asm02.dao;
 
 import asm02.entity.Company;
 import asm02.entity.User;
+import asm02.entity.eUserRole;
 import asm02.security.AuthUser;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,14 @@ import java.util.Optional;
 public class UserDaoImpl implements UserDao{
     @Autowired
     private SessionFactory sessionFactory;
+
+    @Override
+    public Long countUser(){
+       return sessionFactory.getCurrentSession()
+               .createQuery("select count(*) from User where role = :role", Long.class)
+               .setParameter("role", eUserRole.JOB_SEEKER)
+               .getSingleResult();
+    }
     @Override
     public List<User> findAll() {
         return sessionFactory
@@ -21,6 +30,7 @@ public class UserDaoImpl implements UserDao{
                 .createQuery("from User where deletedAt is null", User.class)
                 .getResultList();
     }
+
 
     @Override
     public Optional<AuthUser> findByEmail(String email) {

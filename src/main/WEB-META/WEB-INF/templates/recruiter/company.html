@@ -8,6 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title th:text="#{label.company}+ ' - '+ ${company != null ? company.companyName :'!'}">Profile</title>
     <div th:replace="fragments::common-resources-top"></div>
+    <link rel="stylesheet" th:href="@{/static/assets/css/style.css}"/>
+    <div th:replace="fragments::cropper-js"></div>
+    <script th:src="@{/static/vendor/cropperjs/cropper.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/static/vendor/cropperjs/cropper.min.css}">
 </head>
 <body>
 <div class="container">
@@ -18,19 +22,23 @@
             <!--/* Logo */-->
             <div id="company-logo" class="text-center">
                 <div>
-                    <img th:if="${company.logo}" th:src="@{'/uploads/images/' + ${company.logo}}" alt="Company Logo"
-                         class="rounded-circle"
-                         width="150"
-                         height="150">
-                    <img th:unless="${company.logo}" src="/static/assets/img/default-logo.png" alt="Company Log"
-                         class="rounded-circle"
-                         width="150"
-                         height="150">
+                    <div class="image-container"
+                         id="image-container"
+                         style="display: inline-block; width: 150px; height: 150px; border-radius: 50%; overflow: hidden;"
+                         role="button" data-bs-target="#uploadLogoModal" data-bs-toggle="modal">
+                        <img th:if="${company.logo}" th:src="@{'/uploads/images/' + ${company.logo}}" alt="Company Logo"
+                             class="rounded-circle"
+                             width="150"
+                             height="150"
+                        >
+                        <img th:unless="${company.logo}" src="/static/assets/img/default-logo.png" alt="Company Log"
+                             class="rounded-circle"
+                             width="150"
+                             height="150">
+                        <div class="overlay" th:text="#{label.upload-logo}">Update!</div>
+                    </div>
+
                 </div>
-                <button class="btn btn-primary my-2" data-bs-target="#uploadLogoModal" data-bs-toggle="modal"
-                        th:text="#{label.upload-logo}">
-                    Upload
-                </button>
             </div>
             <!--/* Form */-->
             <div class="col-xl-5 col-md-9 col-sm-12">
@@ -52,7 +60,7 @@
                         <input type="email" class="form-control"
                                th:classappend="${#fields.hasErrors('email')}? 'is-invalid' : ''"
                                id="updateCompany__email" name="email" th:field="*{email}"
-                               th:attr="data-original-value=${company.email}"  required>
+                               th:attr="data-original-value=${company.email}" required>
                         <label for="updateCompany__email" th:text="#{label.email}">Email</label>
                         <div class="invalid-feedback"
                              th:if="${#fields.hasErrors('email')}"
@@ -85,7 +93,7 @@
                         <input type="text" class="form-control"
                                th:classappend="${#fields.hasErrors('phone')}? 'is-invalid' : ''"
                                id="updateCompany__phone" name="phone" th:field="*{phone}"
-                               pattern="(((\\+|00|0)84)|0)(3|5|7|8|9)+([0-9]{8})\b|^$"
+                               pattern="(((\+|00|0)84)|0)(3|5|7|8|9)+([0-9]{8})\b|^$"
                                th:title="#{message.warn.phone}"
                                th:attr="data-original-value=${company.phone}" placeholder="+84933399933" required>
                         <label for="updateCompany__phone" th:text="#{label.company-phone}">Company Phone</label>
@@ -94,13 +102,13 @@
                              th:errors="*{phone}"></div>
                     </div>
                     <!--/* Description */-->
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
-                               id="updateCompany__description" name="description" th:field="*{description}"
-                               th:attr="data-original-value=${company.description}">
+                    <div class="mb-3 text-start">
                         <label for="updateCompany__description"
                                th:text="#{label.company-description}">Company description</label>
+                        <textarea type="text" class="form-control"
+                                  th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
+                                  id="updateCompany__description" name="description" th:field="*{description}"
+                                  th:attr="data-original-value=${company.description}"></textarea>
                         <div class="invalid-feedback"
                              th:if="${#fields.hasErrors('description')}"
                              th:errors="*{description}"></div>
@@ -109,6 +117,7 @@
             </div>
         </div>
     </div>
+    <div th:replace="fragments :: footer"></div>
 </div>
 <!--/* Model Sections */-->
 <!--/* Upload Logo*/-->
@@ -120,8 +129,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post" enctype="multipart/form-data">
+                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post" id="logoUploadForm"
+                      enctype="multipart/form-data">
                     <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
+                    <div class="mb-3">
+                        <img src="#" alt="Logo Preview" class="img-fluid" id="logoPreview" style="display: none;">
+                    </div>
+                    <input type="hidden" id="cropped-image-data" name="croppedImage">
                     <div class="mb-3">
                         <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
                             image</label>
@@ -143,6 +157,55 @@
         </div>
     </div>
 </div>
+
+<div th:replace="fragments::ckeditor('updateCompany__description')"></div>
 <div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+<script>
+    const logoFileInput = document.querySelector('#uploadCompany_logo');
+    const logoPreview = document.querySelector('#logoPreview');
+    const croppedImageData = document.querySelector('#cropped-image-data');
+    let cropper;
+    logoFileInput.addEventListener('change', () => {
+        const file = logoFileInput.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                logoPreview.src = reader.result;
+                logoPreview.style.display = 'block';
+                if(cropper){
+                    cropper.destroy();
+                }
+                cropper = new Cropper(logoPreview, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
+            });
+            reader.readAsDataURL(file);
+        }
+    });
+    document.querySelector('#logoUploadForm').addEventListener('submit', function(event) {
+        if (cropper) {
+            event.preventDefault();
+            cropper.getCroppedCanvas().toBlob((blob) => {
+                const croppedFile = new File([blob], logoFileInput.files[0].name, { type: logoFileInput.files[0].type });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                logoFileInput.files = dataTransfer.files;
+                this.submit();
+            }, logoFileInput.files[0].type);
+        }
+    });
+    document.querySelector('.image-container').addEventListener('click', () => {
+        logoFileInput.value = '';
+        logoPreview.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        croppedImageData.value = '';
+    });
+
+</script>
 </body>
 </html>

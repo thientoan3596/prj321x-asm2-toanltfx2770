@@ -28,6 +28,6 @@ public abstract class CompanyBaseRequest {
     @NotBlank(message = "{label.email} {validation.not-null}")
     @Email(message = "{label.email} {validation.invalid}")
     protected String email;
-    @Size(max = 255,message = "{label.description} {validation.size.max-only}")
+    @Size(max= 65_535,message = "{label.description} {validation.size.max-only}")
     protected String description;
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.saved-companies}">Jobs Posted</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='saved-companies')"></div>
+    <div class="content">
+        <div class=" row justify-content-center ">
+            <div th:if="${companies==null || companies.size()==0}" class="col">
+                <p th:text="#{message.info.no-saved-company}"></p>
+            </div>
+            <div class="col-8">
+                <div class="card mt-3"  th:each="comp :${companies}">
+                    <div class="card-body">
+                        <div class="row justify-content-center align-items-center">
+                            <div class="col-4 d-flex justify-content-center align-items-center" style="height:10vh;">
+                                <img th:if="${comp.companyLogo}" th:src=" @{'/uploads/images/' + ${comp.companyLogo}}" class="img-fluid h-100" alt="Company Log" />
+                                <img th:unless="${comp.companyLogo}" src="/static/assets/img/default-logo.png" class="img-fluid h-100" alt="Company Log"/>
+                            </div>
+                            <div class="col">
+                                <a th:href="@{/company/{id}(id=${comp.id})}" class="text-decoration-none d-block">
+                                    <span th:text="${comp.companyName}" class="fs-5 fw-bold text-primary"></span>
+                                </a>
+                                <div>
+                                    <i class="bi bi-geo-alt-fill text-muted" ></i>
+                                    <span th:text="${comp.companyAddress}"></span>
+                                </div>
+                                <div>
+                                    <i class="bi bi-envelope text-muted" ></i>
+                                    <span th:text="${comp.companyEmail}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:replace="fragments::pagination(${currentPage}, ${totalPage})"></div>
+    </div>
+    <div th:replace="fragments::footer"></div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+</body>
+</html>

@@ -16,11 +16,14 @@ import javax.validation.constraints.Size;
 @AllArgsConstructor
 @Data
 @FieldDefaults(level = AccessLevel.PROTECTED)
+
 public abstract class UserBaseRequest {
     @NotBlank(message = "{label.fullname} {validation.not-blank}")
-    @Size(min = 5, max = 255, message = "{validation.size.name}")
+    @Size(min = 5, max = 255, message = "{label.fullname} {validation.size}")
     String fullName;
+    @Size( max = 255, message = "{label.address} {validation.size.max-only}")
     String address = "";
+    @Size(max = 65_535, message = "{label.description} {validation.size.max-only}")
     String description = "";
     @NotBlank(message = "{label.email} {validation.not-blank}")
     @Email(message = "{label.email} {validation.invalid}")

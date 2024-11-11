@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--suppress XmlDuplicatedId -->
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.saved-jobs}">Applied jobs</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='saved-jobs')"></div>
+    <div class="content">
+        <div class="row justify-content-center">
+            <div th:if="${jobs==null || jobs.size()==0}" class="col">
+                <p th:text="#{message.info.no-saved-job}"></p>
+            </div>
+            <th:block th:unless="${jobs==null || jobs.size()==0}">
+                <div class="col-md-8 my-1" th:each="job : ${jobs}">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-row">
+                                <div class="col-md-3 d-flex align-items-center">
+                                    <img th:if="${job.companyLogo}"
+                                         th:src=" @{'/uploads/images/' + ${job.companyLogo}}"
+                                         class="w-50 img-fluid " alt="Company Log"/>
+                                    <img th:unless="${job.companyLogo}" src="/static/assets/img/default-logo.png"
+                                         class="w-50 img-fluid" alt="Company Log"/>
+                                </div>
+                                <div class="ps-2 col-md-6 d-flex flex-column text-start">
+                                    <div class="text-truncate">
+                                        <a th:href="@{/job/{id}(id=${job.jobId})}" class="text-decoration-none">
+                                            <span th:text="${job.jobTitle}" class="fs-5 fw-bold text-primary"></span>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a th:href="@{/company/{id}(id=${job.companyId})}"
+                                           class="text-decoration-none">
+                                            <span th:text="${job.companyName}"
+                                                  class="fs-5 fw-bold text-primary"></span>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-secondary d-inline-block text-truncate"
+                                              th:text="${job.jobSalaryRange}" style="max-width:15vw;"></span>
+                                        <span class="badge bg-secondary d-inline-block text-truncate"
+                                              th:text="${job.jobAddress}" style="max-width:15vw;"></span>
+                                    </div>
+                                </div>
+                                <div class="ps-2 col-md-3 d-flex justify-content-center align-items-center">
+                                    <div th:if="${job.application!=null}">
+                                        <span th:if="${#dates.createNow().after(job.jobDeadline)}"
+                                              th:text="#{label.expired}"
+                                              class="badge bg-secondary pe-auto fw-20"
+                                              data-bs-toggle="tooltip"
+                                              data-bs-placement="right"
+                                              th:attr="title=${job.jobDeadline}"></span>
+                                        <th:block
+                                                th:if="${!#dates.createNow().after(job.jobDeadline) && job.application.id == null }">
+                                            <button th:if="${#authorization.expression('isAuthenticated()')}"
+                                                    class="btn btn-primary"
+                                                    th:id="'applyJobModal__btn_job'+${job.jobId}"
+                                                    th:attr="onclick=|toggleApplyJobModalHandler('${job.jobTitle}',${job.jobId})|">
+                                                <span th:text="#{label.apply}" style="font-size: .75rem;"></span>
+                                            </button>
+                                            <button th:unless="${#authorization.expression('isAuthenticated()')}"
+                                                    class="btn btn-primary"
+                                                    data-bs-toggle="modal" data-bs-target="#applyJobModal">
+                                                <span th:text="#{label.apply}" style="font-size: .75rem;"></span>
+                                            </button>
+                                        </th:block>
+                                        <button th:if="${job.application.id != null}"
+                                                class="btn btn-primary disabled">
+                                            <span th:text="#{${'label.'+#strings.toLowerCase(job.application.getStatus())}}"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="fragments::pagination(${currentPage}, ${totalPage})"></div>
+            </th:block>
+        </div>
+    </div>
+    <div th:replace="fragments::footer"></div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Job Apply Form Modal */-->
+<th:block th:replace="fragments::apply-modal-form">
+</th:block>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+<script th:src="@{/static/assets/js/saved-jobs.js}"></script>
+</body>
+</html>

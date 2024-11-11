@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.applied-jobs}">Applied jobs</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='applied-jobs')"></div>
+    <div class="content" >
+        <div class="row justify-content-center">
+            <div th:if="${applications==null || applications.size()==0}" class="col">
+                <p th:text="#{message.info.no-applied-job}"></p>
+            </div>
+            <th:block th:unless="${applications==null || applications.size()==0}">
+                <div class="col-md-8 my-1" th:each="apl : ${applications}">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-row">
+                                <div class="col-md-3 d-flex align-items-center">
+                                    <img th:if="${apl.post.companyLogo}" th:src=" @{'/uploads/images/' + ${apl.post.companyLogo}}"
+                                         class="w-50 img-fluid " alt="Company Log" />
+                                    <img th:unless="${apl.post.companyLogo}" src="/static/assets/img/default-logo.png"
+                                         class="w-50 img-fluid" alt="Company Log"/>
+                                </div>
+                                <div class="ps-2 col-md-9 d-flex flex-column text-start">
+                                    <div class="text-truncate">
+                                        <a th:href="@{/job/{id}(id=${apl.post.id})}" class="text-decoration-none">
+                                            <span th:text="${apl.post.title}" class="fs-5 fw-bold text-primary"></span>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a th:href="@{/company/{id}(id=${apl.post.companyId})}" class="text-decoration-none">
+                                            <span th:text="${apl.post.company}" class="fs-5 fw-bold text-primary"></span>
+                                        </a>
+                                    </div>
+                                    <div >
+                                        <span class="badge bg-secondary d-inline-block text-truncate"
+                                              th:text="${apl.post.salaryRange}" style="max-width:15vw;"></span>
+                                        <span class="badge bg-secondary d-inline-block text-truncate"
+                                              th:text="${apl.post.address}" style="max-width:15vw;"></span>
+                                    </div>
+                                    <div >
+                                        <span class="badge bg-primary fw-20"
+                                              th:text="#{${'label.'+#strings.toLowerCase(apl.getStatus())}}" ></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="fragments::pagination(${currentPage}, ${totalPage})"></div>
+            </th:block>
+        </div>
+    </div>
+    <div th:replace="fragments::footer"></div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+</body>
+</html>

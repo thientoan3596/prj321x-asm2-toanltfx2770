@@ -1,5 +1,6 @@
 package asm02.configuration;
 
+import asm02.util.PaginationUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -36,10 +37,16 @@ public class TemplateConf {
     public SpringSecurityDialect springSecurityDialect() {
         return new SpringSecurityDialect();
     }
+
+    @Bean
+    public PaginationUtil paginationUtil() {
+        return new PaginationUtil();
+    }
     @Bean
     public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine);
+        viewResolver.addStaticVariable( "paginationHelper", paginationUtil());
         viewResolver.setCharacterEncoding("UTF-8");
         return viewResolver;
     }

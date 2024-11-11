@@ -8,6 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
     <title th:text="#{label.profile}">Profile</title>
     <div th:replace="fragments::common-resources-top"></div>
+    <link rel="stylesheet" th:href="@{/static/assets/css/style.css}"/>
+    <div th:replace="fragments::cropper-js"></div>
+    <script th:src="@{/static/vendor/cropperjs/cropper.min.js}"></script>
+    <link rel="stylesheet" th:href="@{/static/vendor/cropperjs/cropper.min.css}">
 </head>
 <body>
 <div class="container">
@@ -18,22 +22,25 @@
             <!--/* Avatar */-->
             <div id="avatar" class="text-center">
                 <div>
-                    <img th:if="${user.avatar}" th:src="@{'/uploads/images/' + ${user.avatar}}" alt="User Avatar"
-                         class="rounded-circle"
-                         width="150"
-                         height="150">
-                    <img th:unless="${user.avatar}" src="/static/assets/img/default-avatar.png" alt="User Avatar"
-                         class="rounded-circle"
-                         width="150"
-                         height="150">
+                    <div class="image-container"
+                         id="image-container"
+                         style="display: inline-block; width: 150px; height: 150px; border-radius: 50%; overflow: hidden;"
+                         role="button" data-bs-target="#uploadAvatarModal" data-bs-toggle="modal">
+                        <img th:if="${user.avatar}" th:src="@{'/uploads/images/' + ${user.avatar}}" alt="User Avatar"
+                             class="rounded-circle"
+                             width="150"
+                             height="150">
+                        <img th:unless="${user.avatar}" src="/static/assets/img/default-avatar.png" alt="User Avatar"
+                             class="rounded-circle"
+                             width="150"
+                             height="150">
+                        <div class="overlay" th:text="#{label.upload-avatar}">Update!</div>
+
+                    </div>
                 </div>
-                <button class="btn btn-primary my-2" data-bs-target="#uploadAvatarModal" data-bs-toggle="modal"
-                        th:text="#{label.upload-avatar}">
-                    Upload
-                </button>
             </div>
             <!--/* CV */-->
-            <div id="cv" class="row justify-content-center my-5">
+            <div id="cv" class="row justify-content-center my-5" sec:authorize="hasRole('ROLE_JOB_SEEKER')">
                 <div class="col-xl-5 col-md-9 col-sm-12">
                     <div class="row">
                         <div class="col-4">
@@ -116,12 +123,12 @@
                     </div>
                     <!--/* Description */-->
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
-                               id="updateUser__description" name="description" th:field="*{description}"
-                               th:attr="data-original-value=${user.description}">
                         <label for="updateUser__description"
                                th:text="#{label.description}">Description</label>
+                        <textarea type="text" class="form-control"
+                               th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
+                               id="updateUser__description" name="description" th:field="*{description}"
+                                  th:attr="data-original-value=${user.description}"></textarea>
                         <div class="invalid-feedback"
                              th:if="${#fields.hasErrors('description')}"
                              th:errors="*{description}"></div>
@@ -130,6 +137,7 @@
             </div>
         </div>
     </div>
+    <div th:replace="fragments :: footer"></div>
 </div>
 <!--/* Model Sections */-->
 <!--/* Upload avatar*/-->
@@ -141,8 +149,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form th:if="${user}" th:action="@{/user/avatar}" method="post" enctype="multipart/form-data">
+                <form th:if="${user}" th:action="@{/user/avatar}" method="post" enctype="multipart/form-data" id="uploadAvatarForm">
                     <input type="hidden" id="uploadAvatar__userId" name="userId" th:value="${user.id}">
+                    <div class="mb-3">
+                        <img src="#" alt="Avatar Preview" class="img-fluid" id="avatarPreview" style="display: none;">
+                    </div>
+                    <input type="hidden" id="cropped-image-data" name="croppedImage">
                     <div class="mb-3">
                         <label for="uploadAvatar__avatar" class="form-label" th:text="#{label.select-image}">Upload
                             image</label>
@@ -194,6 +206,54 @@
         </div>
     </div>
 </div>
+<div th:replace="fragments::ckeditor('updateUser__description')"></div>
 <div th:replace="fragments::common-resources-bottom"></div>
+<script>
+    const avatarFileInput = document.querySelector('#uploadAvatar__avatar');
+    const avatarPreview = document.querySelector('#avatarPreview');
+    const croppedImageData = document.querySelector('#cropped-image-data');
+    let cropper;
+    avatarFileInput.addEventListener('change', () => {
+        const file = avatarFileInput.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                avatarPreview.src = reader.result;
+                avatarPreview.style.display = 'block';
+                if(cropper){
+                    cropper.destroy();
+                }
+                cropper = new Cropper(avatarPreview, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                });
+            });
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.querySelector('#uploadAvatarForm').addEventListener('submit', function(event) {
+        if (cropper) {
+            event.preventDefault();
+            cropper.getCroppedCanvas().toBlob((blob) => {
+                const croppedFile = new File([blob], avatarFileInput.files[0].name, { type: avatarFileInput.files[0].type });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(croppedFile);
+                avatarFileInput.files = dataTransfer.files;
+                this.submit();
+            }, avatarFileInput.files[0].type);
+        }
+    });
+    document.querySelector('.image-container').addEventListener('click', () => {
+        avatarFileInput.value = '';
+        avatarPreview.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        croppedImageData.value = '';
+    });
+
+</script>
 </body>
 </html>

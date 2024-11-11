@@ -18,9 +18,12 @@ import javax.validation.constraints.Pattern;
 public class UserRegisterRequest  extends UserBaseRequest {
     private eUserRole role=eUserRole.JOB_SEEKER;
     @NotBlank(message = "{label.password} {validation.not-blank}")
+//    /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/
+//    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.* ).{3,16}$", message = "{label.password} {validation.password.regex}")
     @Pattern(regexp = ".{3,255}", message = "{label.password} {validation.size}")
     private String password;
     @NotBlank(message = "{label.password} {validation.not-blank}")
+//    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.* ).{3,16}$", message = "{label.password} {validation.password.regex}")
     @Pattern(regexp = ".{3,255}", message = "{label.password} {validation.size}")
     private String passwordConfirm;
 }

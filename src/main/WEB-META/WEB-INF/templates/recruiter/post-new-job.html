@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.post-a-job}">Post a Recruitment News</title>
+    <div th:replace="fragments::common-resources-top"></div>
+    <link rel="stylesheet" th:href="@{/static/assets/css/style.css}"/>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='post-new-job')"></div>
+    <div class="content text-center">
+        <div class="row justify-content-center">
+            <div class="col-6">
+                <form th:action="@{/recruiter/post-new-job}" method="post" novalidate
+                      th:object="${jobPostModel}">
+                    <div class="row align-items-center justify-content-between mb-2">
+                        <div class="col">
+                            <h4 class="mb-0" th:text="#{label.post-a-job}"></h4>
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-primary" th:value="#{label.post}">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 th:text="#{label.job-post-detail}"></h4>
+                            <input type="hidden" th:field="*{companyId}">
+                            <hr>
+                            <div class="text-start">
+                                <!--/* Title */-->
+                                <div class="mb-3 ">
+                                    <label for="jobPost_title" class="form-label" th:text="#{label.title}">Title</label>
+                                    <input type="text" class="form-control" id="jobPost_title" th:field="*{title}"
+                                           th:classappend="${#fields.hasErrors('title')}? 'is-invalid' : ''"
+                                           required th:placeholder="#{label.title}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('title')}"
+                                         th:errors="*{title}"></div>
+                                </div>
+                                <!--/* Job Description */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_description" class="form-label is-invalid-label"
+                                           th:text="#{label.job-description}">Description</label>
+                                    <textarea class="form-control" id="jobPost_description"
+                                              th:field="*{description}"
+                                              th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''" required
+                                              th:placeholder="#{label.job-description}"></textarea>
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('description')}"
+                                         th:errors="*{description}"></div>
+                                </div>
+                                <!--/* YoE */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_yoe" class="form-label" th:text="#{label.yoe}">Years of
+                                        experience</label>
+                                    <input type="text" class="form-control" id="jobPost_yoe" th:field="*{yoe}"
+                                           th:classappend="${#fields.hasErrors('yoe')}? 'is-invalid' : ''" required
+                                           th:placeholder="#{label.yoe}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('yoe')}"
+                                         th:errors="*{yoe}"></div>
+                                </div>
+                                <!--/* Vacancies */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_vacancies" class="form-label" th:text="#{label.vacancies}">Vacancies</label>
+                                    <input type="number" class="form-control" id="jobPost_vacancies"
+                                           th:classappend="${#fields.hasErrors('vacancies')}? 'is-invalid' : ''"
+                                           th:field="*{vacancies}" required
+                                           th:placeholder="#{label.vacancies}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('vacancies')}"
+                                         th:errors="*{vacancies}"></div>
+                                </div>
+                                <!--/* Address */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_address" class="form-label"
+                                           th:text="#{label.address}">Address</label>
+                                    <input type="text" class="form-control" id="jobPost_address" th:field="*{address}"
+                                           th:classappend="${#fields.hasErrors('address')}? 'is-invalid' : ''" required
+                                           th:placeholder="#{label.address}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('address')}"
+                                         th:errors="*{address}"></div>
+                                </div>
+                                <!--/* Application Deadline */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_deadline" class="form-label"
+                                           th:text="#{label.application-deadline}">Application deadline</label>
+                                    <input type="date" class="form-control" id="jobPost_deadline" th:field="*{deadline}"
+                                           th:classappend="${#fields.hasErrors('deadline')}? 'is-invalid' : ''" required
+                                           data-validation="today"
+                                           th:placeholder="#{label.application-deadline}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('deadline')}"
+                                         th:errors="*{deadline}"></div>
+                                </div>
+                                <!--/* Salary */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_salary" class="form-label" th:text="#{label.salary-range}">Salary
+                                        Range</label>
+                                    <input type="text" class="form-control" id="jobPost_salary"
+                                           th:field="*{salaryRange}"
+                                           th:classappend="${#fields.hasErrors('salaryRange')}? 'is-invalid' : ''"
+                                           required th:placeholder="#{label.salary-range}">
+                                    <div class="invalid-feedback"
+                                         th:if="${#fields.hasErrors('salaryRange')}"
+                                         th:errors="*{salaryRange}"></div>
+                                </div>
+                                <!--/* Job Type */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_jobType" class="form-label" th:text="#{label.job-type}">Job
+                                        type</label>
+                                    <select id="jobPost_jobType" th:field="*{type}" class="form-control" required>
+                                        <option th:each="entry : ${types}" th:value="${entry.name()}"
+                                                th:text="${entry}"></option>
+                                    </select>
+                                </div>
+                                <!--/* Job Category */-->
+                                <div class="mb-3">
+                                    <label for="jobPost_jobCategory" class="form-label" th:text="#{label.job-category}">Job
+                                        category</label>
+                                    <select id="jobPost_jobCategory" th:field="*{category}" class="form-control"
+                                            required>
+                                        <option th:each="cat : ${categories} " th:value="${cat.id}"
+                                                th:text="${cat.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Upload Logo*/-->
+<div class="modal fade" id="uploadLogoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{label.upload-logo}">Upload logo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post"
+                      enctype="multipart/form-data">
+                    <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
+                    <div class="mb-3">
+                        <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
+                            image</label>
+                        <input class="form-control" type="file" id="uploadCompany_logo" accept=".jpg, .jpeg, .png"
+                               name="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
+                        Upload
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
+                        Cancel
+                    </button>
+                </form>
+                <div th:unless="${company}" class="text-danger">
+                    Malfunction! Not expecting to reach here!
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="fragments::ckeditor('jobPost_description')"></div>
+<div th:replace="fragments::common-resources-bottom"></div>
+</body>
+</html>

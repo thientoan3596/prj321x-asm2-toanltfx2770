@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>TEST PAGE</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header"></div>
+    <div class="content text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-sm-12">
+                <form th:action="@{/test-post}" method="POST" th:object="${obj}">
+                    <h1 class="h3 mb-3 fw-normal text-center">TEST</h1>
+                    <div class="row gs-2">
+                        <!--full_name-->
+                        <div class="col-md-6 col-sm-12 mb-3">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" name="name"
+                                       th:classappend="${#fields.hasErrors('name')}? 'is-invalid' : ''"
+                                       th:field="*{name}" required>
+                                <label for="name">Họ tên</label>
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('name')}"
+                                     th:errors="*{name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">Đăng ký</button>
+                            <div class="text-center mt-3">
+                                <p class="mt-2 mb-3 text-muted">&copy; 2017–2024</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <p>
+                            </p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+</body>
+</html>

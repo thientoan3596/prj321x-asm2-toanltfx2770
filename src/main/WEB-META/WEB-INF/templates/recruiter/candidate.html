@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.candidate-detail}">Job detail</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header"></div>
+    <div class="content">
+        <div class="row justify-content-center">
+            <h1 th:text="#{label.job-application}" class="text-center"></h1>
+            <div class="row job-info justify-content-center align-items-center">
+                <div class="col-8">
+                    <!--/* Jobs Info Section */-->
+                    <div class="row pt-5">
+                        <div class="col-6 d-flex flex-column">
+                            <div>
+                                <span class="fs-5 fw-bold" th:text="#{label.job}+':'"></span>
+                                <a th:href="@{/job/{id}(id=${jobPostResponse.id})}" class="text-decoration-none"
+                                   style="color:inherit;" role="button">
+                                    <span th:text="${jobPostResponse.title}" class="fs-6"></span>
+                                </a>
+                            </div>
+                            <div>
+                                <span class="fs-5 fw-bold" th:text="#{label.address}+':'"></span>
+                                <span th:text="${jobPostResponse.address}" class="fs-6"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div>
+                                <span class="text-muted fw-bold" th:text="#{label.state}+':'"></span>
+                                <span th:text="#{${'label.'+#strings.toLowerCase(applicationResponse.getStatus())}}"
+                                      th:classappend="${applicationResponse.getStatus() == T(asm02.entity.eApplicationStatus).PENDING ?
+                                                                                                        'text-warning': 'text-secondary'}">
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pt-2">
+                        <!--/* Candidate Detail Section */-->
+                        <div class="col-8">
+                            <div class="d-flex flex-column">
+                                <div class="lead my-5 ms-4" th:text="#{label.candidate-detail}"></div>
+                                <div class="row">
+                                    <div class="col-3 d-flex justify-content-center align-self-center">
+                                        <img th:if="${applicationResponse.userAvatar}"
+                                             th:src="@{'/uploads/images/' + ${applicationResponse.userAvatar}}"
+                                             alt="Candidate Avatar"
+                                             class="img-fluid border" style="max-width:10vw; max-height:10vh;">
+                                        <img th:unless="${applicationResponse.userAvatar}"
+                                             src="/static/assets/img/default-avatar.png"
+                                             alt="User Default Avatar"
+                                             class="img-fluid border" style="max-width:10vw; max-height:10vh;">
+                                    </div>
+                                    <div class="col d-flex flex-column">
+                                        <div>
+                                            <i class="bi bi-person bi-bold me-2"></i>
+                                            <span th:text="${candidateResponse.fullName}"></span>
+                                        </div>
+                                        <div>
+                                            <i class="bi bi-envelope bi-bold me-2"></i>
+                                            <span th:text="${candidateResponse.email}"></span>
+                                        </div>
+                                        <div th:if="${candidateResponse.phone != null && candidateResponse.phone != ''}">
+                                            <i class="bi bi-telephone bi-bold me-2"></i>
+                                            <span th:text="${candidateResponse.phone}"></span>
+                                        </div>
+                                        <div th:if="${candidateResponse.address !=null && candidateResponse.address != ''}">
+                                            <i class="bi bi-geo-alt-fill bi-bold me-2"></i>
+                                            <span th:text="${candidateResponse.address}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="content mt-3" th:utext="${candidateResponse.description}"></div>
+                                    </div>
+                                </div>
+                                <hr class="w-25 mx-auto">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="content mt-3" th:text="${applicationResponse.text}"></div>
+                                    </div>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="col">
+                                        <span class="fw-bold">CV: </span>
+                                        <a th:href="@{/view-pdf/{file}(file=${cvResponse.fileNameOnServer})}" class="text-decoration-none">
+                                            <span th:text="${applicationResponse.cv}" class="mx-3"></span>
+                                        </a>
+                                        <a th:href="@{/download/cv/{file}/{name}(file=${cvResponse.fileNameOnServer},name=${cvResponse.fileName})}" role="button"
+                                           class="text-dark" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                           title="Download">
+                                            <i class="bi bi-download bi-bold"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="fragments :: footer"></div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Job Apply Form Modal */-->
+<div sec:authorize="isAuthenticated() and hasRole('ROLE_JOB_SEEKER') or !isAuthenticated()" class="modal fade"
+     id="applyJobModal"
+     th:attr="data-default-shown=${modalShow}"
+     tabindex="-1">
+    <th:block sec:authorize="isAuthenticated() and hasRole('ROLE_JOB_SEEKER')">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" th:text="#{label.apply}+': ' +${job.title}"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="applyForm" th:action="@{/user/apply/{id}(id=${job.id})}" method="post"
+                          th:object="${applicationRequest}"
+                          enctype="multipart/form-data">
+                        <input type="hidden" id="applyJobModal__cv_jobId" name="jobId" th:value="${job.id}">
+                        <input type="hidden" id="applyJobModal__cv_userId" name="userId"
+                               th:value="${#authentication.principal.id}">
+                        <div class="mb-3">
+                            <label for="applyJobModal__cv_cvId" class="form-label" th:text="#{label.select}+' cv'">Select
+                                CV</label>
+                            <select th:if="*{cvId}" id="applyJobModal__cv_cvId" class="form-select" name="cvId"
+                                    th:field="*{cvId}">
+                                <option th:each="cv : ${cvList}" th:value="${cv.id}" th:text="${cv.fileName}"></option>
+                                <option th:text="#{label.submit-new-cv}" value="-1"></option>
+                            </select>
+                            <select th:unless="*{cvId}" id="applyJobModal__cv_cvId" class="form-select" name="cvId">
+                                <option th:each="cv : ${cvList}" th:value="${cv.id}" th:text="${cv.fileName}"
+                                        th:selected="${cv.isDefault }"></option>
+                                <option th:text="#{label.submit-new-cv}" value="-1"></option>
+                            </select>
+                            <div class="invalid-feedback d-none"></div>
+                        </div>
+                        <div class="mb-3 d-none">
+                            <label for="applyJobModal__cv_file" class="form-label" th:text="#{label.select-file}">Upload
+                                file</label>
+                            <input class="form-control " type="file" id="applyJobModal__cv_file" accept=".pdf"
+                                   name="file"
+                                   th:classappend="${fileError!=null} ? 'is-invalid' : ''">
+                            <div class="invalid-feedback"
+                                 th:if="${fileError!=null}"
+                                 th:text="${fileError}"></div>
+                        </div>
+                        <div class="mb-3 ">
+                            <label for="applyJobModal__cv_text" class="form-label" th:text="#{label.self-introduction}">Self
+                                introduction</label>
+                            <textarea class="form-control" id="applyJobModal__cv_text" name="text" rows="10"
+                                      th:field="*{text}"
+                                      th:classappend="${#fields.hasErrors('text')}? 'is-invalid' : ''"></textarea>
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('text')}"
+                                 th:errors="*{text}"></div>
+                        </div>
+                        <button type="submit" id="applyJobModal__submit" class="btn btn-primary"
+                                th:text="#{label.apply}">
+                            Upload
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                th:text="#{label.cancel}">
+                            Cancel
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </th:block>
+    <th:block sec:authorize="!isAuthenticated()">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <h5>
+                        <a th:href="@{/login}" class="text-decoration-none" th:text="#{message.info.login}"></a>
+                        <span th:text="#{message.info.login-to-apply}"></span>
+                    </h5>
+                    <p th:text="#{message.info.login.no-account}" class="d-inline-block">Chưa có tài khoản?</p>
+                    <a href="/register" th:text="#{message.info.login.register-now}" class="text-decoration-none">Đăng
+                        ký ngay</a>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+<script th:src="@{/static/assets/js/job.js}"></script>
+</body>
+</html>

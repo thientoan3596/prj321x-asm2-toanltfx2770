@@ -61,12 +61,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Long countUser() {
+        return userDao.countUser();
+    }
+
+    @Override
     public Optional<UserResponse> findUser(long id) {
         return userDao.findById(id).map(userMapper::toResponse);
     }
 
     @Override
-    public Optional<User> findUserEntity(long id) {
+    public Optional<User> getEntity(long id) {
         return userDao.findById(id);
     }
 

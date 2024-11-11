@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vn">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title th:text="#{label.posts}">Jobs Posted</title>
+    <div th:replace="fragments::common-resources-top"></div>
+</head>
+<body>
+<div class="container">
+    <div th:replace="fragments::header(activeTab='jobs-posted')"></div>
+    <div class="content text-center">
+        <h1 th:text="#{label.posts}"></h1>
+        <th:block th:if="${posts==null || posts.size()==0}">
+            <div class="card mt-5 text-center">
+                <h3 class="mt-4" th:text="#{message.info.no-post-yet}">
+                    Chưa có bài đăng nào, tạo mới?
+                </h3>
+            </div>
+        </th:block>
+        <th:block th:unless="${posts.size()==0}">
+            <th:block th:each="post : ${posts}">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row  justify-content-between">
+                            <div class="col-7 align-self-center">
+                                <div class="d-flex flex-column align-items-start">
+                                    <div class="text-primary fs-5 fw-bold" th:text="${post.type}">
+                                        FullTime
+                                    </div>
+                                    <h4 th:text="${post.title}"> Tuyến lập trình viên .NET</h4>
+                                    <div class="d-flex">
+                                        <div>
+                                            <i class="bi bi-building"></i>
+                                            <span class="text-muted" th:text="${post.company}">FPT Software</span>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="bi bi-geo-alt-fill"></i>
+                                            <span class="text-muted" th:text="${post.address}">Đà Nẵng</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-5 align-self-center">
+                                <div class="d-flex justify-content-end">
+                                    <a class="btn btn-primary me-2" th:href="@{/job/{id}(id=${post.id})}"
+                                       role="button" th:text="#{label.view-detail}">View Detail</a>
+                                    <a class="btn btn-warning me-2" role="button" th:href="@{/recruiter/job-post/{id}(id=${post.id})}"
+                                            th:text="#{label.update}">Update</a>
+                                    <button class="btn btn-danger" th:text="#{label.delete}">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+        </th:block>
+        <div th:if="${totalPage>1}" class="d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item ${currentPage == 0 ? 'disabled' : ''}">
+                        <a class="page-link" th:href="${currentPage > 0 ? '?page=' + (currentPage - 1) : '#'}"
+                           aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    <th:block th:each="pageNum : ${#numbers.sequence(0, totalPage - 1)}">
+                        <li th:classappend="${pageNum == currentPage ? 'active page-item' : 'page-item'}">
+                            <a class="page-link" th:href="'?page='+${pageNum}" th:text="${pageNum + 1}"></a>
+                        </li>
+                    </th:block>
+                    <li class="page-item ${currentPage == totalPage - 1 ? 'disabled' : ''}">
+                        <a class="page-link"
+                           th:href="${currentPage < totalPage - 1 ? '/jobs-posted?page=' + (currentPage + 1) : '#'}"
+                           aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<!--/* Model Sections */-->
+<!--/* Upload Logo*/-->
+<div class="modal fade" id="uploadLogoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" th:text="#{label.upload-logo}">Upload logo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post"
+                      enctype="multipart/form-data">
+                    <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
+                    <div class="mb-3">
+                        <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
+                            image</label>
+                        <input class="form-control" type="file" id="uploadCompany_logo" accept=".jpg, .jpeg, .png"
+                               name="file">
+                    </div>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
+                        Upload
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
+                        Cancel
+                    </button>
+                </form>
+                <div th:unless="${company}" class="text-danger">
+                    Malfunction! Not expecting to reach here!
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="fragments::common-resources-bottom"></div>
+<div th:replace="fragments::flash-message-consumer"></div>
+</body>
+</html>

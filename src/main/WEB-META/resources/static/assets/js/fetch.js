@@ -6,6 +6,23 @@
 * @throws {ErrorObject}
 * @see {@link ErrorObject}
 */
+async function get(url) {
+  try {
+    const response = await fetch(url);
+
+    return await response.json();
+  } catch (error) {
+    throw error
+  }
+}
+/**
+* @param {String} url -
+* @param {Object} data -
+* @param {FormPrefix} formPrefix 
+* @returns {Promise<Object>} - parsed JSON response.
+* @throws {ErrorObject}
+* @see {@link ErrorObject}
+*/
 async function post(url, data, formPrefix) {
   const response = await fetch(url, {
     method: 'POST',

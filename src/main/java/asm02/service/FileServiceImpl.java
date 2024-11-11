@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Service
 public class FileServiceImpl implements FileService {
-    // TODO: 9/20/2024 Replace with external place to store file!
     @Value("${FILE.MAX-NAME-LENGTH}")
     private int MAX_FILE_NAME_LENGTH;
     @Value("${FILE.UPLOAD-DIR}")
@@ -32,10 +31,12 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private ServletContext servletContext;
 
+
+
     @SneakyThrows
     @Override
-    public String uploadFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
+    public String uploadFile(MultipartFile file,String name){
+        String fileName = name;
         String newFileName;
         if(isImage(file))
             newFileName = generateName(fileName);
@@ -46,6 +47,22 @@ public class FileServiceImpl implements FileService {
         Path  p = getPath(file, newFileName);
         saveFile(file,p);
         return newFileName;
+    }
+    @SneakyThrows
+    @Override
+    public String uploadFile(MultipartFile file) {
+        return uploadFile(file,file.getOriginalFilename());
+        /*String fileName = file.getOriginalFilename();
+        String newFileName;
+        if(isImage(file))
+            newFileName = generateName(fileName);
+        else {
+            String uuid = UUID.randomUUID().toString();
+            newFileName = uuid + getExtension(fileName);
+        }
+        Path  p = getPath(file, newFileName);
+        saveFile(file,p);
+        return newFileName;*/
     }
     private Path getPath(MultipartFile file, String name){
         return Paths.get(
@@ -64,12 +81,15 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void deleteFile(String path) {
-        Path p = Paths.get(servletContext.getRealPath("/resources/"), uploadDir, path);
+        Path p = Paths.get(servletContext.getRealPath("/resources/"), uploadDir,imgDir, path);
         try {
             Files.deleteIfExists(p);
         } catch (IOException e) {
-            if(e instanceof FileNotFoundException)
+            if(e instanceof FileNotFoundException){
+                System.out.println("NO FILE");
+
                 return;
+            }
             e.printStackTrace();
         }
     }

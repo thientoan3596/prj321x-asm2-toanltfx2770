@@ -13,8 +13,10 @@ public interface UserService {
     UserResponse update(UserRequest payload);
     UserResponse uploadAvatar(Long userId, MultipartFile file);
     UserResponse insert(UserRegisterRequest payload);
-//    void changePassword(long id, String newRawPassword);
+    Long countUser();
+
+    //    void changePassword(long id, String newRawPassword);
     Optional<UserResponse> findUser(long id);
-    Optional<User> findUserEntity(long id);
+    Optional<User> getEntity(long id);
     List<UserResponse> findUsers();
 }
