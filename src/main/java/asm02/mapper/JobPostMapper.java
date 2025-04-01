@@ -19,6 +19,7 @@ public interface JobPostMapper {
     @Mapping(target = "jobCategory", ignore = true)
     @Mapping(target = "company",ignore = true)
     @Mapping(target = "createdAt",ignore = true)
+    @Mapping(target = "deletedAt",ignore = true)
     JobPost toEntity(JobPostInsertRequest payload);
 
     JobPostRequest toRequest(JobPostResponse response);

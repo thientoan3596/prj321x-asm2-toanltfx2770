@@ -46,7 +46,7 @@ public class TemplateConf {
     public ThymeleafViewResolver viewResolver(SpringTemplateEngine templateEngine) {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
         viewResolver.setTemplateEngine(templateEngine);
-        viewResolver.addStaticVariable( "paginationHelper", paginationUtil());
+        viewResolver.addStaticVariable( "paginationUtil", paginationUtil());
         viewResolver.setCharacterEncoding("UTF-8");
         return viewResolver;
     }

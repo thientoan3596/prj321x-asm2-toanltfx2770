@@ -1,49 +1,85 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="vn">
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  lang="vn"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title th:text="#{label.login}"></title>
     <div th:replace="fragments::common-resources-top"></div>
-</head>
-<body>
-<div class="container">
-    <div th:replace="fragments::header"></div>
-    <div class="content text-center">
+  </head>
+  <body>
+    <div class="container">
+      <div th:replace="fragments::header"></div>
+      <div class="content text-center">
         <div class="row justify-content-center">
-            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-                <form action="login" method="post">
-                    <h1 class="h3 mb-3 fw-normal" th:text="#{label.login}">Đăng nhập</h1>
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="email" name="email" required>
-                        <label for="email" th:text="#{label.email}">Email</label>
-                    </div>
-                    <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="password" name="password" required>
-                        <label for="password" th:text="#{label.password}">Password</label>
-                    </div>
-                    <div th:if="${param.error}" class="form-group">
-                        <div class="invalid-feedback d-block" id="form-feedback" th:text="#{message.error.login.credential}">
-                            Không đúng email hoặc mật khẩu.
-                        </div>
-                    </div>
-                    <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">Sign in</button>
-                    <div class="text-center mt-3">
-                        <div>
-                            <p th:text="#{message.info.login.no-account}" class="d-inline-block">Chưa có tài khoản?</p>
-                            <a href="/register" th:text="#{message.info.login.register-now}">Đăng ký ngay</a>
-                        </div>
-                        <p class="mt-2 mb-3 text-muted">&copy; 2017–2024</p>
-                    </div>
-                </form>
-            </div>
+          <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+            <form action="login" method="post">
+              <h1 class="h3 mb-3 fw-normal" th:text="#{label.login}">
+                Đăng nhập
+              </h1>
+              <div class="form-floating mb-3">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  required
+                />
+                <label for="email" th:text="#{label.email}">Email</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  required
+                />
+                <label for="password" th:text="#{label.password}"
+                  >Password</label
+                >
+              </div>
+              <div th:if="${param.error}" class="form-group">
+                <div
+                  class="invalid-feedback d-block"
+                  id="form-feedback"
+                  th:text="#{message.error.login.credential}"
+                >
+                  Không đúng email hoặc mật khẩu.
+                </div>
+              </div>
+              <button class="w-100 btn btn-lg btn-primary mt-3" type="submit">
+                Sign in
+              </button>
+              <div class="text-center mt-3">
+                <div>
+                  <p
+                    th:text="#{message.info.login.no-account}"
+                    class="d-inline-block"
+                  >
+                    Chưa có tài khoản?
+                  </p>
+                  <a
+                    href="/register"
+                    th:text="#{message.info.login.register-now}"
+                    >Đăng ký ngay</a
+                  >
+                </div>
+                <p class="mt-2 mb-3 text-muted">&copy; 2017–2024</p>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-<div th:replace="fragments::common-resources-bottom"></div>
-<div th:replace="fragments::flash-message-consumer"></div>
-</body>
+    <div th:replace="fragments::common-resources-bottom"></div>
+    <div th:replace="fragments::flash-message-consumer"></div>
+  </body>
 </html>

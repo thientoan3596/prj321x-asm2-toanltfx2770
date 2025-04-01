@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.sql.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,8 +51,6 @@ public class JobPostServiceImpl implements JobPostService {
     public List<JobPostResponseWithCompanyLogo> findTopJobPosts(Integer size){
         return jobPostDao.findTopJobPosts(size).stream().map(jobPostMapper::toResponseWithCompanyLogo).collect(Collectors.toList());
     }
-
-
 
     @Override
     public Page<JobPostResponse> findAll(Pageable pageable) {
@@ -120,5 +119,12 @@ public class JobPostServiceImpl implements JobPostService {
         }
         jobPostDao.update(jobPost);
         return jobPostMapper.toResponse(jobPost);
+    }
+
+    @Override
+    public void delete(Long id) {
+        JobPost jobPost = getEntity(id).orElseThrow(()->new EntityNotFoundException("No such job with id: " + id));
+        jobPost.setDeletedAt(new Date(System.currentTimeMillis()));
+        jobPostDao.update(jobPost);
     }
 }

@@ -23,7 +23,7 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "company_name")
+    @Column(name = "name")
     private String companyName;
     private String address;
     @Lob

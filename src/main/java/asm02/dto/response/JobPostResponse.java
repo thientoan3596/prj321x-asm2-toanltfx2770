@@ -29,4 +29,5 @@ public class JobPostResponse {
      Long companyId;
      eJobType type;
      Date createdAt;
+     Date deletedAt;
 }

@@ -1,6 +1,6 @@
 package asm02.configuration;
 
-import asm02.security.AuthService;
+import asm02.security.AuthServiceImpl;
 import asm02.security.PasswordEncoderImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .antMatchers("/static/**", "/public/**").permitAll()
                 .antMatchers("/", "/login", "/logout", "/register").permitAll()
                 .antMatchers("/**").permitAll()
-//                .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
@@ -49,7 +48,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .invalidateHttpSession(true) // Invalidate session
-                .deleteCookies("JSESSIONID")
+//                .deleteCookies("JSESSIONID")
                 .permitAll()
                 .and()
                 .csrf().disable();
@@ -64,7 +63,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        return new AuthService();
+        return new AuthServiceImpl();
     }
 
     @Bean

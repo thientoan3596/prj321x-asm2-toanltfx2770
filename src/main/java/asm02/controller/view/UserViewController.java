@@ -6,6 +6,7 @@ import asm02.dto.request.update.UserRequest;
 import asm02.dto.response.ApplicationWithJobPostLogoResponse;
 import asm02.dto.response.CompanyFollowResponse;
 import asm02.dto.response.JobFollowResponse;
+import asm02.security.AuthService;
 import asm02.security.AuthUser;
 import asm02.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,8 +32,6 @@ import java.util.Locale;
 @RequestMapping("/user")
 public class UserViewController {
     @Autowired
-    private Validator validator;
-    @Autowired
     private UserService userService;
     @Autowired
     private ApplicationService applicationService;
@@ -42,13 +40,11 @@ public class UserViewController {
     @Autowired
     private FileService fileService;
     @Autowired
-    private JobPostService jobPostService;
-    @Autowired
-    private JobCategoryService jobCategoryService;
-    @Autowired
     private FollowService followService;
     @Autowired
     private MessageSource messageSource;
+    @Autowired
+    private AuthService authService;
 
 
     @GetMapping("/profile")
@@ -78,6 +74,7 @@ public class UserViewController {
         if (bindingResult.hasErrors())
             return "redirect:/user/profile";
         userService.update(payload);
+        authService.refreshAuthentication(authUser.getEmail());
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.update", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);

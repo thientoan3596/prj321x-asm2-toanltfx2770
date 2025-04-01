@@ -31,6 +31,8 @@ public class JobPost {
     private Date deadline;
     @Column(name = "created_at", insertable = false, updatable = false)
     private Date createdAt;
+    @Column(name = "deleted_at")
+    private Date deletedAt;
     @Column(name = "salary_range")
     private String salaryRange;
     @JoinColumn(name = "category_id")

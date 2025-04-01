@@ -50,7 +50,31 @@
                                        role="button" th:text="#{label.view-detail}">View Detail</a>
                                     <a class="btn btn-warning me-2" role="button" th:href="@{/recruiter/job-post/{id}(id=${post.id})}"
                                             th:text="#{label.update}">Update</a>
-                                    <button class="btn btn-danger" th:text="#{label.delete}">Delete</button>
+
+                                    <button class="btn btn-danger" th:text="#{label.delete}" data-bs-toggle="modal"
+                                            th:attr="data-bs-target=|#deleteJobPostModal_${post.id}|">
+                                            Delete</button>
+                                    <div class="modal fade" th:id="'deleteJobPostModal_'+${post.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" th:text="|#{label.delete} #{label.job} ${post.title}|">Delete Modal</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form  th:action="@{/recruiter/delete-post/{id}(id=${post.id})}" method="post">
+                                                        <input type="hidden" id="jobPostId" name="jobPostId" th:value="${post.id}">
+                                                        <button type="submit" class="btn btn-danger" data-bs-dismiss="modal" th:text="#{label.confirm}">
+                                                        </button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
+                                                            Cancel
+                                                        </button>
+                                                    </form>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -58,66 +82,12 @@
                 </div>
             </th:block>
         </th:block>
-        <div th:if="${totalPage>1}" class="d-flex justify-content-center">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    <li class="page-item ${currentPage == 0 ? 'disabled' : ''}">
-                        <a class="page-link" th:href="${currentPage > 0 ? '?page=' + (currentPage - 1) : '#'}"
-                           aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                    <th:block th:each="pageNum : ${#numbers.sequence(0, totalPage - 1)}">
-                        <li th:classappend="${pageNum == currentPage ? 'active page-item' : 'page-item'}">
-                            <a class="page-link" th:href="'?page='+${pageNum}" th:text="${pageNum + 1}"></a>
-                        </li>
-                    </th:block>
-                    <li class="page-item ${currentPage == totalPage - 1 ? 'disabled' : ''}">
-                        <a class="page-link"
-                           th:href="${currentPage < totalPage - 1 ? '/jobs-posted?page=' + (currentPage + 1) : '#'}"
-                           aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <div th:replace="fragments::pagination(${currentPage}, ${totalPage})"></div>
     </div>
 </div>
 <!--/* Model Sections */-->
-<!--/* Upload Logo*/-->
-<div class="modal fade" id="uploadLogoModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" th:text="#{label.upload-logo}">Upload logo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form th:if="${company}" th:action="@{/recruiter/company-logo}" method="post"
-                      enctype="multipart/form-data">
-                    <input type="hidden" id="uploadCompany_id" name="companyId" th:value="${company.id}">
-                    <div class="mb-3">
-                        <label for="uploadCompany_logo" class="form-label" th:text="#{label.select-image}">Upload
-                            image</label>
-                        <input class="form-control" type="file" id="uploadCompany_logo" accept=".jpg, .jpeg, .png"
-                               name="file">
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
-                        Upload
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
-                        Cancel
-                    </button>
-                </form>
-                <div th:unless="${company}" class="text-danger">
-                    Malfunction! Not expecting to reach here!
-                </div>
-            </div>
+<!--/* Delete Logo*/-->
 
-        </div>
-    </div>
-</div>
 <div th:replace="fragments::common-resources-bottom"></div>
 <div th:replace="fragments::flash-message-consumer"></div>
 </body>

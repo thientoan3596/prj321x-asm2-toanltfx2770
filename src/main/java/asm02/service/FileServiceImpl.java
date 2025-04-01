@@ -16,21 +16,20 @@ import java.util.UUID;
 
 @Service
 public class FileServiceImpl implements FileService {
-    @Value("${FILE.MAX-NAME-LENGTH}")
+    @Value("${file.max-name-length}")
     private int MAX_FILE_NAME_LENGTH;
-    @Value("${FILE.UPLOAD-DIR}")
+    @Value("${file.upload-dir}")
     private String uploadDir;
-    @Value("${FILE.IMAGE-DIR}")
+    @Value("${file.image-dir}")
     private String imgDir;
 
-    @Value("${FILE.CV-DIR}")
+    @Value("${file.cv-dir}")
     private String cvDir;
 
-    @Value("${FILE.OTHER-DIR}")
+    @Value("${file.other-dir}")
     private String otherDir;
     @Autowired
     private ServletContext servletContext;
-
 
 
     @SneakyThrows

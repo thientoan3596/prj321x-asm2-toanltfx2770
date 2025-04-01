@@ -20,7 +20,7 @@
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3i.0/font/bootstrap-icons.css">
     <!--/* CKEditor */-->
     <link rel="stylesheet" th:href="@{/static/vendor/ckeditor5/ckeditor5.css}"/>
     <script th:src="@{/static/vendor/ckeditor5/ckeditor5.umd.js}"></script>
@@ -59,6 +59,8 @@
         <a href="/" class="d-flex align-items-center col-md-2 mb-2 mb-md-0 text-dark text-decoration-none">
             <h1 class="display-6 text-muted">Logo</h1>
         </a>
+
+        <!--/* Nav items */-->
         <ul class="nav col-12 col-md-5 mb-2 justify-content-center mb-md-0">
             <li sec:authorize="!hasRole('ROLE_RECRUITER')">
                 <a th:href="@{/jobs}" class="nav-link px-2" th:text="#{label.jobs}"
@@ -107,6 +109,7 @@
                 </li>
             </th:block>
         </ul>
+        <!--/* User dropdown */-->
         <div sec:authorize="isAuthenticated()" class="col-md-3 text-end d-flex justify-content-end">
             <div class="dropdown ">
                 <button class="btn dropdown-toggle "
@@ -116,8 +119,8 @@
                 </button>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <a class="dropdown-item" href="/user/profile" th:text="#{label.profile}">Profile</a>
-                    <a sec:authorize="hasRole('ROLE_RECRUITER')" th:if="${currentUser!=null}" class="dropdown-item"
-                       th:text="${currentUser.company.companyName}"
+                    <a sec:authorize="hasRole('ROLE_RECRUITER')" th:if="${#authentication.principal!=null}" class="dropdown-item"
+                       th:text="${#authentication.principal.company.companyName}"
                        th:href="@{/recruiter/company}">
                     </a>
                     <a class="dropdown-item" href="/logout" th:text="#{label.logout}">Logout</a>
@@ -128,6 +131,7 @@
             <a href="/login" class="btn btn-outline-primary me-2" role="button" th:text="#{label.login}">Login</a>
             <a href="/register" class="btn btn-primary" role="button" th:text="#{label.register}">Register</a>
         </div>
+        <!--/* Lang switcher */-->
         <div class="language-switcher col-md-2">
             <div class="mx-4 current-lang" role="button" aria-expanded="false" data-bs-toggle="tooltip"
                  th:attr="title=${#locale.language == 'vi' ? 'Change to English' : 'Tiếng Việt'}">
@@ -216,7 +220,7 @@
             <ul class="pagination">
                 <th:block th:each="pageNum : ${#numbers.sequence(0, _totalPage - 1)}">
                     <li th:classappend="${pageNum == _currentPage ? 'active page-item' : 'page-item'}" th:if="${pageNum != -1}">
-                        <a class="page-link"  th:href="@{${paginationHelper.toPage(aURL, pageNum)}}" th:text="${pageNum + 1}"></a>
+                        <a class="page-link"  th:href="@{${paginationUtil.toPage(fullPath, pageNum)}}" th:text="${pageNum + 1}"></a>
                     </li>
                 </th:block>
             </ul>
@@ -352,6 +356,8 @@
             const applyJobModalElement = document.querySelector("#applyJobModal");
             const applyJobModal = new bootstrap.Modal(applyJobModalElement);
             const cvSelect = document.querySelector("#applyJobModal__cv_cvId");
+            const newCVFile = document.querySelector("#applyJobModal__cv_file");
+            const submitBtn = document.querySelector("#applyJobModal__submit");
             async function toggleApplyJobModalHandler(modalTitle,jobId) {
                 try {
                     if (cvSelect.options.length == 1) {
@@ -366,6 +372,14 @@
                         data.forEach(cv => {
                             cvSelect.add(new Option(cv.fileName, cv.id, cv.isDefault, cv.isDefault));
                         });
+                        if (cvSelect.value == -1) {
+                            document.querySelector("#applyJobModal__cv_file").parentElement.classList.remove('d-none');
+                            if (newCVFile.value == '')
+                            submitBtn.disabled = true;
+                        } else {
+                            document.querySelector("#applyJobModal__cv_file").parentElement.classList.add('d-none');
+                            submitBtn.disabled = false;
+                        }
                     }else{
                         applyJobModalElement.querySelectorAll(".is-invalid").forEach(e => e.classList.remove("is-invalid"));
                         document.querySelector("#applyJobModal__cv_text").value="";
@@ -438,6 +452,12 @@
                 }
             }
 
+            document.querySelector("#applyJobModal__cv_file").addEventListener("change", (e) => {
+                if (e.target.value != '')
+                submitBtn.disabled = false;
+                else
+                submitBtn.disabled = true;
+            });
         </script>
     </div>
 </th:block>

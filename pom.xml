@@ -3,6 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <packaging>war</packaging>
 
     <groupId>org.example</groupId>
     <artifactId>PRJ321x_ASM2_toanltFX27704</artifactId>
@@ -196,6 +197,7 @@
 
     </dependencies>
     <build>
+        <finalName>prj321x-asm2-toanltfx27704</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -231,8 +233,24 @@
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.0</version>
+                    <configuration>
+                        <webResources>
+                            <resource>
+                                <directory>src/main/WEB-META/WEB-INF/templates</directory>
+                                <targetPath>WEB-INF/templates</targetPath>
+                            </resource>
+                            <resource>
+                                <directory>src/main/WEB-META/resources/static</directory>
+                                <targetPath>resources/static</targetPath>
+                            </resource>
+                        </webResources>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
-
 </project>

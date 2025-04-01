@@ -1,259 +1,443 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="vn">
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+  lang="vn"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title th:text="#{label.profile}">Profile</title>
     <div th:replace="fragments::common-resources-top"></div>
-    <link rel="stylesheet" th:href="@{/static/assets/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/static/assets/css/style.css}" />
     <div th:replace="fragments::cropper-js"></div>
     <script th:src="@{/static/vendor/cropperjs/cropper.min.js}"></script>
-    <link rel="stylesheet" th:href="@{/static/vendor/cropperjs/cropper.min.css}">
-</head>
-<body>
-<div class="container">
-    <div th:replace="fragments::header"></div>
-    <div class="content text-center">
+    <link
+      rel="stylesheet"
+      th:href="@{/static/vendor/cropperjs/cropper.min.css}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div th:replace="fragments::header"></div>
+      <div class="content text-center">
         <div th:if="${user}" class="row justify-content-center">
-            <h1 th:text="#{label.profile}">Profile</h1>
-            <!--/* Avatar */-->
-            <div id="avatar" class="text-center">
-                <div>
-                    <div class="image-container"
-                         id="image-container"
-                         style="display: inline-block; width: 150px; height: 150px; border-radius: 50%; overflow: hidden;"
-                         role="button" data-bs-target="#uploadAvatarModal" data-bs-toggle="modal">
-                        <img th:if="${user.avatar}" th:src="@{'/uploads/images/' + ${user.avatar}}" alt="User Avatar"
-                             class="rounded-circle"
-                             width="150"
-                             height="150">
-                        <img th:unless="${user.avatar}" src="/static/assets/img/default-avatar.png" alt="User Avatar"
-                             class="rounded-circle"
-                             width="150"
-                             height="150">
-                        <div class="overlay" th:text="#{label.upload-avatar}">Update!</div>
-
-                    </div>
+          <h1 th:text="#{label.profile}">Profile</h1>
+          <!--/* Avatar */-->
+          <div id="avatar" class="text-center">
+            <div>
+              <div
+                class="image-container"
+                id="image-container"
+                style="
+                  display: inline-block;
+                  width: 150px;
+                  height: 150px;
+                  border-radius: 50%;
+                  overflow: hidden;
+                "
+                role="button"
+                data-bs-target="#uploadAvatarModal"
+                data-bs-toggle="modal"
+              >
+                <img
+                  th:if="${user.avatar}"
+                  th:src="@{'/uploads/images/' + ${user.avatar}}"
+                  alt="User Avatar"
+                  class="rounded-circle"
+                  width="150"
+                  height="150"
+                />
+                <img
+                  th:unless="${user.avatar}"
+                  src="/static/assets/img/default-avatar.png"
+                  alt="User Avatar"
+                  class="rounded-circle"
+                  width="150"
+                  height="150"
+                />
+                <div class="overlay" th:text="#{label.upload-avatar}">
+                  Update!
                 </div>
+              </div>
             </div>
-            <!--/* CV */-->
-            <div id="cv" class="row justify-content-center my-5" sec:authorize="hasRole('ROLE_JOB_SEEKER')">
-                <div class="col-xl-5 col-md-9 col-sm-12">
-                    <div class="row">
-                        <div class="col-4">
-                            <button class="btn btn-primary mb-2" data-bs-target="#uploadCVModal"
-                                    data-bs-toggle="modal"
-                                    th:text="#{label.upload-cv}">
-                                Upload CV
-                            </button>
-                        </div>
-                        <div class="col-8">
-                            <div th:if="${user.cvList != null && user.cvList.size()!= 0}">
-                                <span th:text="${user.getDefaultCV().fileName}"></span>
-                            </div>
-                            <div th:unless="${ user.cvList != null && user.cvList.size()!= 0}">
-                                <span th:text="#{label.no-cv} + '!'">No CV Uploaded</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
+          <!--/* CV */-->
+          <div
+            id="cv"
+            class="row justify-content-center my-5"
+            sec:authorize="hasRole('ROLE_JOB_SEEKER')"
+          >
             <div class="col-xl-5 col-md-9 col-sm-12">
-                <form th:action="@{/user/profile}" method="post" th:object="${user}">
-                    <div class="row mb-3">
-                        <div class="col-7">
-                            <h1 class="h3 fw-normal" th:text="#{label.profile-detail}">Profile</h1>
-                        </div>
-                        <div class="col-5 ">
-                            <button class="w-100 btn  btn-primary" type="submit"
-                                    th:text="#{label.save}">Save
-                            </button>
-                        </div>
-                    </div>
-                    <input type="hidden" name="id" th:value="*{id}">
-                    <!--/* Email */-->
-                    <div class="form-floating mb-3">
-                        <input type="email" class="form-control"
-                               th:classappend="${#fields.hasErrors('email')}? 'is-invalid' : ''"
-                               id="updateUser__email" name="email" th:field="*{email}"
-                               th:attr="data-original-value=${user.email}" readonly>
-                        <label for="updateUser__email" th:text="#{label.email}">Email</label>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('email')}"
-                             th:errors="*{email}"></div>
-                    </div>
-
-                    <!--/* Full name */-->
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('fullName')}? 'is-invalid' : ''"
-                               id="updateUser__fullName" name="fullName" th:field="*{fullName}"
-                               th:attr="data-original-value=${user.fullName}" required>
-                        <label for="updateUser__fullName" th:text="#{label.fullname}">Full name</label>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('fullName')}"
-                             th:errors="*{fullName}"></div>
-                    </div>
-                    <!--/* Address */-->
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('address')}? 'is-invalid' : ''"
-                               id="updateUser__address" name="address" th:field="*{address}"
-                               th:attr="data-original-value=${user.address}" placeholder="Đà Nẵng">
-                        <label for="updateUser__address" th:text="#{label.address}">Address</label>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('address')}"
-                             th:errors="*{address}"></div>
-                    </div>
-                    <!--/* Phone */-->
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('phone')}? 'is-invalid' : ''"
-                               id="updateUser__phone" name="phone" th:field="*{phone}"
-                               pattern="(((\\+|00|0)84)|0)(3|5|7|8|9)+([0-9]{8})\b|^$"
-                               th:title="#{message.warn.phone}"
-                               th:attr="data-original-value=${user.phone}" placeholder="+84933399933">
-                        <label for="updateUser__phone" th:text="#{label.phone}">Phone</label>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('phone')}"
-                             th:errors="*{phone}"></div>
-                    </div>
-                    <!--/* Description */-->
-                    <div class="form-floating mb-3">
-                        <label for="updateUser__description"
-                               th:text="#{label.description}">Description</label>
-                        <textarea type="text" class="form-control"
-                               th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
-                               id="updateUser__description" name="description" th:field="*{description}"
-                                  th:attr="data-original-value=${user.description}"></textarea>
-                        <div class="invalid-feedback"
-                             th:if="${#fields.hasErrors('description')}"
-                             th:errors="*{description}"></div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <div th:replace="fragments :: footer"></div>
-</div>
-<!--/* Model Sections */-->
-<!--/* Upload avatar*/-->
-<div class="modal fade" id="uploadAvatarModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" th:text="#{label.upload-avatar}">Upload avatar</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form th:if="${user}" th:action="@{/user/avatar}" method="post" enctype="multipart/form-data" id="uploadAvatarForm">
-                    <input type="hidden" id="uploadAvatar__userId" name="userId" th:value="${user.id}">
-                    <div class="mb-3">
-                        <img src="#" alt="Avatar Preview" class="img-fluid" id="avatarPreview" style="display: none;">
-                    </div>
-                    <input type="hidden" id="cropped-image-data" name="croppedImage">
-                    <div class="mb-3">
-                        <label for="uploadAvatar__avatar" class="form-label" th:text="#{label.select-image}">Upload
-                            image</label>
-                        <input class="form-control" type="file" id="uploadAvatar__avatar" accept=".jpg, .jpeg, .png"
-                               name="file">
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
-                        Upload
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
-                        Cancel
-                    </button>
-                </form>
-                <div th:unless="${user}">
-                    Malfunction! Not expecting to reach here!
+              <div class="row">
+                <div class="col-4">
+                  <button
+                    class="btn btn-primary mb-2"
+                    data-bs-target="#uploadCVModal"
+                    data-bs-toggle="modal"
+                    th:text="#{label.upload-cv}"
+                  >
+                    Upload CV
+                  </button>
                 </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-<!--/* Upload CV*/-->
-<div class="modal fade" id="uploadCVModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" th:text="#{label.upload-cv}">Upload CV</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form th:if="${user}" th:action="@{/user/cv}" method="post" enctype="multipart/form-data">
-                    <input type="hidden" id="uploadCV__userId" name="userId" th:value="${user.id}">
-                    <div class="mb-3">
-                        <label for="uploadCV__cv" class="form-label" th:text="#{label.select-file}">Upload file</label>
-                        <input class="form-control" type="file" id="uploadCV__cv" accept=".pdf" name="file">
-                    </div>
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" th:text="#{label.upload}">
-                        Upload
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" th:text="#{label.cancel}">
-                        Cancel
-                    </button>
-                </form>
-                <div th:unless="${user}">
-                    Malfunction! Not expecting to reach here!
+                <div class="col-8">
+                  <div th:if="${user.cvList != null && user.cvList.size()!= 0}">
+                    <span th:text="${user.getDefaultCV().fileName}"></span>
+                  </div>
+                  <div
+                    th:unless="${ user.cvList != null && user.cvList.size()!= 0}"
+                  >
+                    <span th:text="#{label.no-cv} + '!'">No CV Uploaded</span>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
+          <div class="col-xl-5 col-md-9 col-sm-12">
+            <form
+              th:action="@{/user/profile}"
+              method="post"
+              th:object="${user}"
+            >
+              <div class="row mb-3">
+                <div class="col-7">
+                  <h1 class="h3 fw-normal" th:text="#{label.profile-detail}">
+                    Profile
+                  </h1>
+                </div>
+                <div class="col-5">
+                  <button
+                    class="w-100 btn btn-primary"
+                    type="submit"
+                    th:text="#{label.save}"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+              <input type="hidden" name="id" th:value="*{id}" />
+              <!--/* Email */-->
+              <div class="form-floating mb-3">
+                <input
+                  type="email"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('email')}? 'is-invalid' : ''"
+                  id="updateUser__email"
+                  name="email"
+                  th:field="*{email}"
+                  th:attr="data-original-value=${user.email}"
+                  readonly
+                />
+                <label for="updateUser__email" th:text="#{label.email}"
+                  >Email</label
+                >
+                <div
+                  class="invalid-feedback"
+                  th:if="${#fields.hasErrors('email')}"
+                  th:errors="*{email}"
+                ></div>
+              </div>
 
+              <!--/* Full name */-->
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('fullName')}? 'is-invalid' : ''"
+                  id="updateUser__fullName"
+                  name="fullName"
+                  th:field="*{fullName}"
+                  th:attr="data-original-value=${user.fullName}"
+                  required
+                />
+                <label for="updateUser__fullName" th:text="#{label.fullname}"
+                  >Full name</label
+                >
+                <div
+                  class="invalid-feedback"
+                  th:if="${#fields.hasErrors('fullName')}"
+                  th:errors="*{fullName}"
+                ></div>
+              </div>
+              <!--/* Address */-->
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('address')}? 'is-invalid' : ''"
+                  id="updateUser__address"
+                  name="address"
+                  th:field="*{address}"
+                  th:attr="data-original-value=${user.address}"
+                  placeholder="Đà Nẵng"
+                />
+                <label for="updateUser__address" th:text="#{label.address}"
+                  >Address</label
+                >
+                <div
+                  class="invalid-feedback"
+                  th:if="${#fields.hasErrors('address')}"
+                  th:errors="*{address}"
+                ></div>
+              </div>
+              <!--/* Phone */-->
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('phone')}? 'is-invalid' : ''"
+                  id="updateUser__phone"
+                  name="phone"
+                  th:field="*{phone}"
+                  pattern="(((\\+|00|0)84)|0)(3|5|7|8|9)+([0-9]{8})\b|^$"
+                  th:title="#{message.warn.phone}"
+                  th:attr="data-original-value=${user.phone}"
+                  placeholder="+84933399933"
+                />
+                <label for="updateUser__phone" th:text="#{label.phone}"
+                  >Phone</label
+                >
+                <div
+                  class="invalid-feedback"
+                  th:if="${#fields.hasErrors('phone')}"
+                  th:errors="*{phone}"
+                ></div>
+              </div>
+              <!--/* Description */-->
+              <div class="form-floating mb-3">
+                <label
+                  for="updateUser__description"
+                  th:text="#{label.description}"
+                  >Description</label
+                >
+                <textarea
+                  type="text"
+                  class="form-control"
+                  th:classappend="${#fields.hasErrors('description')}? 'is-invalid' : ''"
+                  id="updateUser__description"
+                  name="description"
+                  th:field="*{description}"
+                  th:attr="data-original-value=${user.description}"
+                ></textarea>
+                <div
+                  class="invalid-feedback"
+                  th:if="${#fields.hasErrors('description')}"
+                  th:errors="*{description}"
+                ></div>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+      <div th:replace="fragments :: footer"></div>
     </div>
-</div>
-<div th:replace="fragments::ckeditor('updateUser__description')"></div>
-<div th:replace="fragments::common-resources-bottom"></div>
-<script>
-    const avatarFileInput = document.querySelector('#uploadAvatar__avatar');
-    const avatarPreview = document.querySelector('#avatarPreview');
-    const croppedImageData = document.querySelector('#cropped-image-data');
-    let cropper;
-    avatarFileInput.addEventListener('change', () => {
+    <!--/* Model Sections */-->
+    <!--/* Upload avatar*/-->
+    <div class="modal fade" id="uploadAvatarModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" th:text="#{label.upload-avatar}">
+              Upload avatar
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form
+              th:if="${user}"
+              th:action="@{/user/avatar}"
+              method="post"
+              enctype="multipart/form-data"
+              id="uploadAvatarForm"
+            >
+              <input
+                type="hidden"
+                id="uploadAvatar__userId"
+                name="userId"
+                th:value="${user.id}"
+              />
+              <div class="mb-3">
+                <img
+                  src="#"
+                  alt="Avatar Preview"
+                  class="img-fluid"
+                  id="avatarPreview"
+                  style="display: none"
+                />
+              </div>
+              <input
+                type="hidden"
+                id="cropped-image-data"
+                name="croppedImage"
+              />
+              <div class="mb-3">
+                <label
+                  for="uploadAvatar__avatar"
+                  class="form-label"
+                  th:text="#{label.select-image}"
+                  >Upload image</label
+                >
+                <input
+                  class="form-control"
+                  type="file"
+                  id="uploadAvatar__avatar"
+                  accept=".jpg, .jpeg, .png"
+                  name="file"
+                />
+              </div>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                data-bs-dismiss="modal"
+                th:text="#{label.upload}"
+              >
+                Upload
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                th:text="#{label.cancel}"
+              >
+                Cancel
+              </button>
+            </form>
+            <div th:unless="${user}">
+              Malfunction! Not expecting to reach here!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--/* Upload CV*/-->
+    <div class="modal fade" id="uploadCVModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" th:text="#{label.upload-cv}">Upload CV</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form
+              th:if="${user}"
+              th:action="@{/user/cv}"
+              method="post"
+              enctype="multipart/form-data"
+            >
+              <input
+                type="hidden"
+                id="uploadCV__userId"
+                name="userId"
+                th:value="${user.id}"
+              />
+              <div class="mb-3">
+                <label
+                  for="uploadCV__cv"
+                  class="form-label"
+                  th:text="#{label.select-file}"
+                  >Upload file</label
+                >
+                <input
+                  class="form-control"
+                  type="file"
+                  id="uploadCV__cv"
+                  accept=".pdf"
+                  name="file"
+                />
+              </div>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                data-bs-dismiss="modal"
+                th:text="#{label.upload}"
+              >
+                Upload
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+                th:text="#{label.cancel}"
+              >
+                Cancel
+              </button>
+            </form>
+            <div th:unless="${user}">
+              Malfunction! Not expecting to reach here!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div th:replace="fragments::ckeditor('updateUser__description')"></div>
+    <div th:replace="fragments::common-resources-bottom"></div>
+    <script>
+      const avatarFileInput = document.querySelector("#uploadAvatar__avatar");
+      const avatarPreview = document.querySelector("#avatarPreview");
+      const croppedImageData = document.querySelector("#cropped-image-data");
+      let cropper;
+      avatarFileInput.addEventListener("change", () => {
         const file = avatarFileInput.files[0];
-        if(file) {
-            const reader = new FileReader();
-            reader.addEventListener('load', () => {
-                avatarPreview.src = reader.result;
-                avatarPreview.style.display = 'block';
-                if(cropper){
-                    cropper.destroy();
-                }
-                cropper = new Cropper(avatarPreview, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                });
+        if (file) {
+          const reader = new FileReader();
+          reader.addEventListener("load", () => {
+            avatarPreview.src = reader.result;
+            avatarPreview.style.display = "block";
+            if (cropper) {
+              cropper.destroy();
+            }
+            cropper = new Cropper(avatarPreview, {
+              aspectRatio: 1,
+              viewMode: 1,
             });
-            reader.readAsDataURL(file);
+          });
+          reader.readAsDataURL(file);
         }
-    });
+      });
 
-    document.querySelector('#uploadAvatarForm').addEventListener('submit', function(event) {
-        if (cropper) {
+      document
+        .querySelector("#uploadAvatarForm")
+        .addEventListener("submit", function (event) {
+          if (cropper) {
             event.preventDefault();
             cropper.getCroppedCanvas().toBlob((blob) => {
-                const croppedFile = new File([blob], avatarFileInput.files[0].name, { type: avatarFileInput.files[0].type });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(croppedFile);
-                avatarFileInput.files = dataTransfer.files;
-                this.submit();
+              const croppedFile = new File(
+                [blob],
+                avatarFileInput.files[0].name,
+                { type: avatarFileInput.files[0].type },
+              );
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(croppedFile);
+              avatarFileInput.files = dataTransfer.files;
+              this.submit();
             }, avatarFileInput.files[0].type);
-        }
-    });
-    document.querySelector('.image-container').addEventListener('click', () => {
-        avatarFileInput.value = '';
-        avatarPreview.style.display = 'none';
-        if (cropper) {
+          }
+        });
+      document
+        .querySelector(".image-container")
+        .addEventListener("click", () => {
+          avatarFileInput.value = "";
+          avatarPreview.style.display = "none";
+          if (cropper) {
             cropper.destroy();
             cropper = null;
-        }
-        croppedImageData.value = '';
-    });
-
-</script>
-</body>
+          }
+          croppedImageData.value = "";
+        });
+    </script>
+  </body>
 </html>

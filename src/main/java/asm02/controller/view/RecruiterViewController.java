@@ -7,8 +7,10 @@ import asm02.dto.response.*;
 import asm02.entity.eJobType;
 import asm02.mapper.CompanyMapper;
 import asm02.mapper.JobPostMapper;
+import asm02.security.AuthService;
 import asm02.security.AuthUser;
 import asm02.service.*;
+import asm02.util.PaginationUtil;
 import asm02.util.Sanitizer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.Locale;
 
@@ -34,7 +37,7 @@ import java.util.Locale;
 @RequestMapping("/recruiter")
 @Validated
 public class RecruiterViewController {
-    @Value("${PAGINATION.JOB-POST.SIZE:10}")
+    @Value("${pagination.job-post.size:10}")
     private int pageSize;
     @Autowired
     private CompanyMapper companyMapper;
@@ -55,6 +58,8 @@ public class RecruiterViewController {
     private FileService fileService;
     @Autowired
     private ApplicationService applicationService;
+    @Autowired
+    private AuthService authService;
     @Autowired
     private MessageSource messageSource;
 
@@ -96,6 +101,7 @@ public class RecruiterViewController {
             return "/recruiter/company";
         }
         companyService.update(payload);
+        authService.refreshAuthentication(authUser.getEmail());
         redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.success.update", null, locale));
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
@@ -167,9 +173,7 @@ public class RecruiterViewController {
         redirectAttributes.addFlashAttribute("message", "Thành công");
         redirectAttributes.addFlashAttribute("type", "success");
         redirectAttributes.addFlashAttribute("translated", true);
-        JobPostResponse response = jobPostService.insert(payload);
-
-        // TODO: 10/17/2024 Redirect to list?
+        jobPostService.insert(payload);
         return "redirect:/recruiter/jobs-posted";
     }
 
@@ -178,16 +182,15 @@ public class RecruiterViewController {
             @RequestParam(value = "page",defaultValue = "0") int page,
             Model model,
             @AuthenticationPrincipal AuthUser authUser,
-            Locale locale
+            Locale locale,
+            HttpServletRequest req
     ) {
-        // TODO: 10/15/2024 Pagination
         CompanyResponse company = companyService.findCompanyByRecruiter(authUser.getId()).orElse(null);
-        if (company == null) {
-            System.out.println("ERROR!");
-            return "NULL";
-        }
+        if (company == null)
+            throw new IllegalStateException("Recruiter with No Company! Manually Add company!");
         Pageable pageable = PageRequest.of(page,pageSize);
         Page<JobPostResponse> jobs = jobPostService.findJobsPosted(company.getId(),pageable);
+        model.addAttribute("fullPath", PaginationUtil.getFullURL(req));
         model.addAttribute("posts", jobs.getContent());
         model.addAttribute("currentPage",jobs.getNumber());
         model.addAttribute("totalPage",jobs.getTotalPages());
@@ -199,9 +202,9 @@ public class RecruiterViewController {
             @PathVariable("id") Long postId,
             Model model,
             @AuthenticationPrincipal AuthUser authUser,
-            Locale locale
+            Locale locale,
+            RedirectAttributes redirectAttributes
     ) {
-        // TODO: 10/19/2024 access denied ?
         JobPostResponse post = jobPostService.find(postId).orElseThrow(() -> new EntityNotFoundException("Job post not found"));
         if(!authUser.getCompanyId().equals(post.getCompanyId()))
             throw new AccessDeniedException("Access denied");
@@ -212,6 +215,21 @@ public class RecruiterViewController {
         return "recruiter/job-post";
     }
 
+    @PostMapping("delete-post/{id}")
+    public String deleteJobPost(
+            @PathVariable("id") Long postId,
+            @AuthenticationPrincipal AuthUser authUser,
+            RedirectAttributes redirectAttributes
+    ){
+        JobPostResponse post = jobPostService.find(postId).orElseThrow(() -> new EntityNotFoundException("Job post not found"));
+        if(isNotAllowed(authUser,post.getCompanyId()))
+            throw new AccessDeniedException("No Permission");
+        jobPostService.delete(postId);
+        redirectAttributes.addFlashAttribute("message","Xóa thành công");
+        redirectAttributes.addFlashAttribute("type", "success");
+        redirectAttributes.addFlashAttribute("translated", true);
+        return "redirect:/recruiter/jobs-posted";
+    }
     @PostMapping("/job-post/{id}")
     public String updateJobPost(
             @PathVariable("id") Long postId,
@@ -222,7 +240,6 @@ public class RecruiterViewController {
             RedirectAttributes redirectAttributes,
             Locale locale
     ) {
-        // TODO: 10/29/2024 Access Denied?
         if (bindingResult.hasErrors()) {
             System.out.println(bindingResult.getAllErrors());
             model.addAttribute("jobPostUpdateModel", payload);

@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class PasswordEncoderImpl implements PasswordEncoder {
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-    @Value("${ENVIRONMENT}")
+    @Value("${environment:'PROD'}")
     private String environment;
     @Override
     public String encode(CharSequence rawPassword) {

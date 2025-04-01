@@ -26,9 +26,9 @@ public class DatabaseConf {
             System.exit(-1);
             throw new RuntimeException(e);
         }
-        dataSource.setJdbcUrl(env.getProperty("DB_URL"));
-        dataSource.setUser(env.getProperty("DB_USER"));
-        dataSource.setPassword(env.getProperty("DB_PASSWORD"));
+        dataSource.setJdbcUrl(env.getProperty("database.url"));
+        dataSource.setUser(env.getProperty("database.username"));
+        dataSource.setPassword(env.getProperty("database.password"));
         dataSource.setInitialPoolSize(1);
         dataSource.setMinPoolSize(1);
         dataSource.setMaxPoolSize(5);
@@ -43,7 +43,6 @@ public class DatabaseConf {
         sessionFactory.setPackagesToScan("asm02/entity","asm02/security");
         Properties hibernateProperties = new Properties();
         hibernateProperties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-        // TODO: Change to false in PROD
         hibernateProperties.setProperty("hibernate.show_sql", "false");
         sessionFactory.setHibernateProperties(hibernateProperties);
         return sessionFactory;

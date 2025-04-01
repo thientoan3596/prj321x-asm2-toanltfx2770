@@ -38,7 +38,7 @@ public class JobPostDaoImpl implements JobPostDao {
 
     @Override
     public Page<JobPost> findAll(Pageable pageable, Long targetId, String targetField) {
-        String query = "from JobPost where deadline >= now() ";
+        String query = "from JobPost where deadline >= now() and deletedAt is null ";
         if (targetField.equals("company")) {
             query += " and company.id = :targetId";
         } else if (targetField.equals("category")) {
@@ -60,7 +60,7 @@ public class JobPostDaoImpl implements JobPostDao {
 
     @Override
     public Page<JobPost> findAll(Pageable pageable) {
-        String query = "from JobPost where deadline >= now() ";
+        String query = "from JobPost where deadline >= now() and deletedAt is null";
         query += "  order by id desc";
         List<JobPost> posts = sessionFactory.getCurrentSession()
                 .createQuery(query, JobPost.class)
@@ -77,13 +77,13 @@ public class JobPostDaoImpl implements JobPostDao {
     @Override
     public Page<JobPost> findByCompanyId(Long companyId, Pageable pageable) {
         List<JobPost> posts = sessionFactory.getCurrentSession()
-                .createQuery("from JobPost where company.id = :companyId order by id desc", JobPost.class)
+                .createQuery("from JobPost where company.id = :companyId and deletedAt is null order by id desc", JobPost.class)
                 .setParameter("companyId", companyId)
                 .setFirstResult((int) pageable.getOffset())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
         long total = sessionFactory.getCurrentSession()
-                .createQuery("select count(*) from JobPost where company.id = :companyId", Long.class)
+                .createQuery("select count(*) from JobPost where company.id = :companyId and deletedAt is null", Long.class)
                 .setParameter("companyId", companyId)
                 .getSingleResult();
         return new PageImpl<>(posts, pageable, total);
@@ -118,7 +118,7 @@ public class JobPostDaoImpl implements JobPostDao {
     @Override
     public Page<JobPost> searchBy(Pageable pageable, String keyword, String byField) {
         final String sanitizedKw = Sanitizer.sanitizeQuery(keyword);
-        String HQL = "from JobPost where deadline >= now() ";
+        String HQL = "from JobPost where deadline >= now() and deletedAt is null ";
         if (byField.equals("company")) {
             HQL += "and company.companyName like :keyword order by length(company.companyName) - length(replace(title, :keyword, '')) desc, id desc";
         } else if (byField.equals("location")) {

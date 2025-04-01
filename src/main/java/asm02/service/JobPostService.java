@@ -32,4 +32,6 @@ public interface JobPostService {
     Optional<JobPost> getEntity(Long id);
     JobPostResponse insert (JobPostInsertRequest payload);
     JobPostResponse update (JobPostRequest payload);
+
+    void delete(Long id);
 }

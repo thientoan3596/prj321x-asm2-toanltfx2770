@@ -1,5 +1,6 @@
 package asm02.security;
 
+import asm02.entity.Company;
 import asm02.entity.eUserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -35,8 +36,8 @@ public class AuthUser implements UserDetails {
     @Transient
     private Long companyId;
 
-//    @OneToOne(mappedBy = "recruiter" ,fetch = FetchType.EAGER)
-//    private Company company;
+    @OneToOne(mappedBy = "recruiter" ,fetch = FetchType.EAGER)
+    private Company company;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_"+role.name()));
