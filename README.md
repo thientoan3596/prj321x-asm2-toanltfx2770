@@ -1,7 +1,7 @@
 ## PRJ321x Project2
 
 PRJ321x Project2
-Để hình dung tổng quát nhất, bạn có thể theo dõi một trang web mẫu tại (đây)[https://www.topcv.vn/viec-lam].
+Để hình dung tổng quát nhất, bạn có thể theo dõi một trang web mẫu tại [đây](https://www.topcv.vn/viec-lam).
 
 ## Overview
 Nhu cầu tìm kiếm nhân sự của các doanh nghiệp cũng như tìm kiếm việc làm của các ứng viên ngày càng nhiều và trở nên cấp thiết. Vì vậy, việc thiết kế website tuyển dụng cùng với sự phát triển mạnh mẽ của công nghệ thông tin như hiện nay để đáp ứng nhu cầu của các doanh nghiệp tìm kiếm nhân sự và ứng viên tìm kiếm nhà tuyển dụng thông qua mạng internet cụ thể là ngày càng trở nên cấp thiết

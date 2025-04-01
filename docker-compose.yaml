@@ -1,0 +1,44 @@
+services:
+  prj321-asm02-db:
+    container_name: prj321-asm02-db
+    image: mysql:8.0
+    command: ["/bin/bash", "-c", "docker-entrypoint.sh mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci --init-connect='SET NAMES utf8mb4;' --skip-character-set-client-handshake "]
+    environment:
+      MYSQL_USER: ${MYSQL_USER:-thluon}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-changeInProd!}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootPassword}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql/mysql-data:/var/lib/mysql
+      - ./mysql/sql:/docker-entrypoint-initdb.d
+    networks:
+      - prj321-asm02-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 20s
+      timeout: 15s
+      retries: 5
+  tomcat-prj321-asm02:
+    image: tomcat:9.0-jdk8-corretto
+    container_name: tomcat-prj321-asm02
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./target/prj321x-asm2-toanltfx27704.war:/usr/local/tomcat/webapps/ROOT.war
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DATABASE_URL: jdbc:mysql://prj321-asm02-db:3306/asm02?
+      DATABASE_USER: ${MYSQL_USER:-thluon}
+      DATABASE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootPassword}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+    networks:
+      - prj321-asm02-network
+    depends_on:
+      prj321-asm02-db:
+        condition: service_healthy
+networks:
+  prj321-asm02-network:
+    driver: bridge
